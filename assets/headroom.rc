@@ -1,0 +1,26 @@
+#define RT_MANIFEST 24
+1 ICON "headroom.ico"
+1 RT_MANIFEST "headroom.manifest"
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+FILEOS 0x40004
+FILETYPE 0x1
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904B0"
+    BEGIN
+      VALUE "FileDescription", "Headroom - headset battery in your taskbar"
+      VALUE "ProductName", "Headroom"
+      VALUE "FileVersion", "1.0 beta"
+      VALUE "ProductVersion", "1.0 beta"
+      VALUE "OriginalFilename", "Headroom.exe"
+      VALUE "LegalCopyright", "GPL-3.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END
