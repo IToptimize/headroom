@@ -1,5 +1,13 @@
 **Headroom** shows the battery of your wireless headsets right in the Windows taskbar: one small exe, no vendor software, no admin rights.
 
+![Headroom in the taskbar](https://raw.githubusercontent.com/IToptimize/headroom/main/docs/tray.png)
+
+The green ring in your taskbar fills with the battery left - glance at it and you know. It turns amber and red when low, blue while charging:
+
+![Tray icon states](https://raw.githubusercontent.com/IToptimize/headroom/main/docs/tray-states.png)
+
+Click it for the details:
+
 ![Headroom panel](https://raw.githubusercontent.com/IToptimize/headroom/main/docs/panel.png)
 
 ### Highlights

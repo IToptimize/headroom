@@ -4,9 +4,15 @@
 <p align="center">Wireless headset battery in your Windows taskbar.<br>
 One tiny exe, no vendor software, no background bloat.</p>
 
-<p align="center"><img src="docs/panel.png" width="640" alt="Headroom panel"></p>
+<p align="center"><img src="docs/tray.png" width="366" alt="Headroom's ring next to the clock"><br>
+<sub>The green ring next to OneDrive is Headroom: a quick look at the taskbar tells you how much battery is left.</sub></p>
+
+<p align="center"><img src="docs/panel.png" width="640" alt="Headroom panel"><br>
+<sub>Click the ring for the details.</sub></p>
 
 ## What it does
+
+<p align="center"><img src="docs/tray-states.png" width="704" alt="Tray icon states"></p>
 
 - **Tray ring** that fills with the battery left (ring, ring + %, or pie), coloured by level, blue when charging.
 - **Click** for a panel with every connected headset: %, status and an estimated time left / time to full.
