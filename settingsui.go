@@ -103,15 +103,15 @@ func toggleSwitch(c *canvas, right, y float64, on bool, s float64, th theme, fli
 
 func renderSettings(s float64) *canvas {
 	th := currentTheme()
-	W, H := 380*s, 588*s
+	W, H := 760*s, 500*s
 	c, ox, oy := card(W, H, s, th)
 	setHits = nil
-	right := ox + W - 20*s
+	right := ox + W/2 - 18*s // left column
 	lx := ox + 20*s
 
 	c.text("Settings", lx, oy+16*s, int(17*s), 600, th.fg, alignLeft)
 	// close (×) drawn as two thin rounded bars
-	cx, cy := right-6*s, oy+28*s
+	cx, cy := ox+W-26*s, oy+28*s
 	for _, d := range []float64{1, -1} {
 		for t := -6.0; t <= 6; t += 0.5 {
 			c.fillCircle(cx+t*s, cy+d*t*s, 0.9*s, th.muted)
@@ -185,7 +185,9 @@ func renderSettings(s float64) *canvas {
 		})
 	})
 
-	y += 6 * s
+	// right column
+	c.fillRoundRect(ox+W/2, oy+62*s, math.Max(1, s), H-110*s, 0, th.border)
+	lx, right, y = ox+W/2+20*s, ox+W-20*s, oy+62*s
 	section("GENERAL")
 	row("Refresh every", func(y float64) {
 		opts := []int{30, 60, 120}
@@ -203,11 +205,25 @@ func renderSettings(s float64) *canvas {
 	row("Always show in taskbar", func(y float64) {
 		toggleSwitch(c, right, y+2*s, trayPinned(), s, th, func() { toggleTrayPin(); applySettings() })
 	})
+	y += 6 * s
+	section("CLAUDE CODE")
+	row("Usage in tray (orange)", func(y float64) {
+		toggleSwitch(c, right, y+2*s, cfg.ClaudeTray, s, th, func() { cfg.ClaudeTray = !cfg.ClaudeTray; changed() })
+	})
+	row("Usage in this panel", func(y float64) {
+		toggleSwitch(c, right, y+2*s, cfg.ClaudePanel, s, th, func() { cfg.ClaudePanel = !cfg.ClaudePanel; changed(); claudeFileMod = time.Time{}; checkClaudeFile() })
+	})
+	row("Status line for Claude Code", func(y float64) {
+		segmented(c, right, y, []string{"Copy setup"}, 0, s, th, func(int) { copyClaudeSetup() })
+	})
+
+	y += 6 * s
+	section("HELP")
 	row("Headset not working?", func(y float64) {
 		segmented(c, right, y, []string{"Create report"}, 0, s, th, func(int) { hideSettings(); createReport() })
 	})
 
-	c.text(appName+" "+appVersion, lx, oy+H-28*s, int(11*s), 400, th.muted, alignLeft)
+	c.text(appName+" "+appVersion, ox+20*s, oy+H-28*s, int(11*s), 400, th.muted, alignLeft)
 	return c
 }
 

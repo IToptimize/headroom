@@ -129,7 +129,13 @@ func tooltip(v View) string {
 }
 
 // tooltipAll lists every device, one line each (tray tooltips max 127 chars).
-func tooltipAll(vs []View) string {
+func tooltipAll(all []View) string {
+	var vs []View
+	for _, v := range all {
+		if v.ID != "claude" {
+			vs = append(vs, v)
+		}
+	}
 	if len(vs) == 0 {
 		return appName + "\nNo headset found"
 	}
@@ -138,6 +144,9 @@ func tooltipAll(vs []View) string {
 	}
 	s := appName
 	for _, v := range vs {
+		if v.ID == "claude" {
+			continue
+		}
 		line := shortName(v.Name) + ": "
 		switch {
 		case !v.OK:
@@ -456,6 +465,9 @@ func renderFlyout(vs []View, s float64) *canvas {
 func partColor(p Part) color {
 	if p.Level < 0 {
 		return colGrey
+	}
+	if p.Tint > 0 {
+		return claudeTint(float64(p.Level), p.Tint == 2)
 	}
 	return batteryColor(p.Level, p.Charging)
 }

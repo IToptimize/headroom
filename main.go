@@ -58,6 +58,12 @@ func dbg(f string, a ...any) {
 }
 
 func main() {
+	for _, a := range os.Args[1:] {
+		if a == "--statusline" { // called by Claude Code, not a tray instance
+			runStatusLine()
+			return
+		}
+	}
 	runtime.LockOSThread()
 	loadConfig()
 	for _, a := range os.Args[1:] {
@@ -124,6 +130,7 @@ func main() {
 		autoPinOnce() // first run after choosing "start with Windows": keep the icon visible
 	}
 	cleanupLegacy()
+	pSetTimer.Call(hwnd, tmClaude, 5000, 0) // pick up Claude Code usage updates quickly
 	go pollLoop()
 
 	var m MSG
@@ -188,14 +195,17 @@ func trayView() (View, bool) {
 	}
 	pin := regGet("TrayDevice")
 	for _, v := range views {
-		if v.ID == pin && v.OK {
+		if v.ID == pin && v.OK && v.ID != "claude" {
 			return v, true
 		}
 	}
 	for _, v := range views {
-		if v.OK {
+		if v.OK && v.ID != "claude" {
 			return v, true
 		}
+	}
+	if views[0].ID == "claude" {
+		return View{}, false
 	}
 	return views[0], true
 }
@@ -219,10 +229,16 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 		return 0
 	case msg == taskbarCreated && taskbarCreated != 0:
 		addIcon()
+		claudeIconShown = false
+		renderClaudeIcon()
+		return 0
+	case msg == WM_TIMER && wp == tmClaude:
+		checkClaudeFile()
 		return 0
 	case msg == WM_DESTROY:
 		nid := baseNID()
 		pShellNotifyIconW.Call(NIM_DELETE, ptr(&nid))
+		removeClaudeIcon()
 		pPostQuitMessage.Call(0)
 		return 0
 	}
@@ -282,6 +298,9 @@ func onUpdate() {
 		dbg("view %+v", v)
 		vs = append(vs, v)
 	}
+	if cv, ok := claudeView(now); ok && cfg.ClaudePanel {
+		vs = append(vs, cv)
+	}
 	views = vs
 	render()
 	for _, v := range views {
@@ -296,12 +315,13 @@ func render() {
 	copyU16(n.SzTip[:], iconAndTip())
 	n.HIcon = curIcon
 	pShellNotifyIconW.Call(NIM_MODIFY, ptr(&n))
+	renderClaudeIcon()
 	refreshFlyout()
 }
 
 // checkThresholds pops a small silent notice when a device crosses 50/10/5 %.
 func checkThresholds(v View) {
-	if !v.OK || v.Level < 0 {
+	if !v.OK || v.Level < 0 || v.ID == "claude" {
 		return
 	}
 	nd, seen := notified[v.ID]

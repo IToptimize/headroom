@@ -7,17 +7,19 @@ import (
 	"time"
 )
 
-const appVersion = "1.0 beta"
+const appVersion = "1.1 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
-	Theme     int // 0 system, 1 light, 2 dark
-	ColorMode int // 0 battery colours, 1 accent colour
-	Accent    int // index into accents
-	Icon      int // 0 ring, 1 ring + %, 2 pie
-	Compact   bool
-	Popups    map[int]bool // level -> enabled
-	Interval  int          // seconds between normal checks
+	Theme       int // 0 system, 1 light, 2 dark
+	ColorMode   int // 0 battery colours, 1 accent colour
+	Accent      int // index into accents
+	Icon        int // 0 ring, 1 ring + %, 2 pie
+	Compact     bool
+	Popups      map[int]bool // level -> enabled
+	Interval    int          // seconds between normal checks
+	ClaudeTray  bool         // orange Claude usage icon in the tray
+	ClaudePanel bool         // Claude row in the panel
 }
 
 var popupLevels = []int{50, 20, 10, 5}
@@ -42,13 +44,15 @@ func regInt(name string, def int) int {
 
 func loadConfig() {
 	cfg = config{
-		Theme:     regInt("Theme", 0),
-		ColorMode: regInt("ColorMode", 0),
-		Accent:    regInt("Accent", 0),
-		Icon:      regInt("Icon", 0),
-		Compact:   regInt("Compact", 0) == 1,
-		Interval:  regInt("Interval", 60),
-		Popups:    map[int]bool{},
+		Theme:       regInt("Theme", 0),
+		ColorMode:   regInt("ColorMode", 0),
+		Accent:      regInt("Accent", 0),
+		Icon:        regInt("Icon", 0),
+		Compact:     regInt("Compact", 0) == 1,
+		Interval:    regInt("Interval", 60),
+		Popups:      map[int]bool{},
+		ClaudeTray:  regInt("ClaudeTray", 1) == 1,
+		ClaudePanel: regInt("ClaudePanel", 1) == 1,
 	}
 	for _, l := range popupLevels {
 		def := 0
@@ -78,6 +82,8 @@ func saveConfig() {
 	regSet("cfg|Icon", strconv.Itoa(cfg.Icon))
 	regSet("cfg|Compact", b(cfg.Compact))
 	regSet("cfg|Interval", strconv.Itoa(cfg.Interval))
+	regSet("cfg|ClaudeTray", b(cfg.ClaudeTray))
+	regSet("cfg|ClaudePanel", b(cfg.ClaudePanel))
 	for _, l := range popupLevels {
 		regSet("cfg|Popup"+strconv.Itoa(l), b(cfg.Popups[l]))
 	}

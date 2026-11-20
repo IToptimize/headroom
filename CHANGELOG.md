@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1 beta
+- Claude Code usage: `Headroom.exe --statusline` shows two rings (5-hour session, week) under the Claude Code prompt and feeds an orange double-ring tray icon plus a Claude row in the panel.
+- Settings in two columns, new Claude Code section (tray / panel toggles, Copy setup).
+
 ## 1.0 beta
 - Renamed from "HyperX Battery" to **Headroom**; automatic migration of settings, learned data, startup entry and install folder.
 - App icon, manifest and version info embedded in the exe.

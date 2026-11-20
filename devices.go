@@ -26,6 +26,7 @@ type Part struct {
 	Charging bool
 	Note     string // shown when Level is unknown
 	Sub      string // small text under the %, e.g. "≈ 20 h left" / "≈ 45 min to full"
+	Tint     int    // 0 battery colours, 1 Claude orange, 2 Claude peach
 }
 
 // Poller asks every backend for its devices.

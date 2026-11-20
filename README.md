@@ -21,9 +21,32 @@ One tiny exe, no vendor software, no background bloat.</p>
 - **Silent pop-ups** at 50 / 20 / 10 / 5 % (pick which).
 - **Settings**: light/dark/system theme, battery colours or an accent colour, compact layout, refresh speed, start with Windows, always show in taskbar.
 - **Report my headset**: one click builds a text report (devices seen, readings, recent log) for bug reports.
+- **Claude Code usage** (optional): an orange ring for your Claude session and weekly limits, see below.
 - ~2.8 MB single exe, a few MB of RAM, no installer and no admin rights needed.
 
 <p align="center"><img src="docs/settings.png" width="640" alt="Settings"></p>
+
+## Claude Code usage (optional)
+
+If you use Claude Code on a Pro/Max plan, Headroom can also show how much of your usage limits is left: an **orange double ring** in the tray (outer = 5-hour session, inner = week) and a *Claude* row in the panel with reset times.
+
+It reads the numbers Claude Code hands to its status line, so it also gives you two rings under the Claude Code prompt:
+
+```
+◕ 5h 76% left · 2h 14m   ◑ week 59% left · Mon 22:21   ctx 34%
+```
+
+Setup: Headroom › Settings › **Copy setup**, then paste the block into `~/.claude/settings.json` (inside the outer `{ }`). It looks like:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "\"C:/Users/you/AppData/Local/Programs/Headroom/Headroom.exe\" --statusline",
+  "padding": 0
+}
+```
+
+Notes: the numbers update while Claude Code is running (the tray shows "as of …" otherwise, and a window counts as full again once its reset time has passed). The status line shows in Claude Code in a terminal; the VS Code extension's side panel doesn't render custom status lines.
 
 ## Supported devices
 

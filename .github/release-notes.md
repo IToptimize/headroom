@@ -10,6 +10,9 @@ Click it for the details:
 
 ![Headroom panel](https://raw.githubusercontent.com/IToptimize/headroom/main/docs/panel.png)
 
+### New in 1.1: Claude Code usage
+An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt. Set it up from **Settings → Copy setup** (Pro/Max plans; see the [README](https://github.com/IToptimize/headroom#claude-code-usage-optional)).
+
 ### Highlights
 - **Tray ring** that fills with the battery left; click for a panel with every connected headset, % and estimated time left / time to full
 - **USB dongles:** HyperX, SteelSeries (incl. the Arctis Nova Pro's spare battery in the base), Corsair Void, Sony INZONE, MCHOSE
