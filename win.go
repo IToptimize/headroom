@@ -106,14 +106,16 @@ const (
 	WM_CONTEXTMENU = 0x007B
 	WM_APP         = 0x8000
 
-	NIM_ADD      = 0
-	NIM_MODIFY   = 1
-	NIM_DELETE   = 2
-	NIF_MESSAGE  = 0x01
-	NIF_ICON     = 0x02
-	NIF_TIP      = 0x04
-	NIF_INFO     = 0x10
-	NIIF_WARNING = 0x02
+	NIM_ADD        = 0
+	NIM_MODIFY     = 1
+	NIM_DELETE     = 2
+	NIF_MESSAGE    = 0x01
+	NIF_ICON       = 0x02
+	NIF_TIP        = 0x04
+	NIF_INFO       = 0x10
+	NIF_SHOWTIP    = 0x80
+	NIM_SETVERSION = 4
+	NIIF_WARNING   = 0x02
 
 	MF_STRING    = 0x0000
 	MF_GRAYED    = 0x0001

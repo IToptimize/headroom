@@ -100,6 +100,8 @@ func httpsGet(host, path, headers string) (int, []byte, error) {
 
 var errLoginExpired = errors.New("login expired")
 
+var claudePlan string // subscription type from the login file, e.g. "pro"
+
 func readClaudeToken() (string, error) {
 	home, _ := os.UserHomeDir()
 	b, err := os.ReadFile(filepath.Join(home, ".claude", ".credentials.json"))
@@ -110,11 +112,13 @@ func readClaudeToken() (string, error) {
 		OAuth struct {
 			AccessToken string  `json:"accessToken"`
 			ExpiresAt   float64 `json:"expiresAt"` // ms
+			Plan        string  `json:"subscriptionType"`
 		} `json:"claudeAiOauth"`
 	}
 	if json.Unmarshal(b, &c) != nil || c.OAuth.AccessToken == "" {
 		return "", errors.New("no Claude login found on this PC")
 	}
+	claudePlan = c.OAuth.Plan
 	if c.OAuth.ExpiresAt > 0 && time.Now().UnixMilli() > int64(c.OAuth.ExpiresAt) {
 		return "", errLoginExpired
 	}
@@ -173,7 +177,7 @@ func fetchClaudeUsage() time.Duration {
 		setFetchStatus("Unexpected answer format")
 		return 15 * time.Minute
 	}
-	u := claudeUsage{Updated: time.Now().Unix()}
+	u := claudeUsage{Updated: time.Now().Unix(), Plan: claudePlan}
 	if old, ok := readClaudeUsage(); ok {
 		u.ContextUsed = old.ContextUsed
 	}

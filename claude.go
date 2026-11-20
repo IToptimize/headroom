@@ -30,6 +30,7 @@ type claudeUsage struct {
 	HasSession  bool    `json:"has_session"`
 	HasWeek     bool    `json:"has_week"`
 	ContextUsed float64 `json:"context_used,omitempty"`
+	Plan        string  `json:"plan,omitempty"` // "pro", "max"... (from the login, when known)
 }
 
 func claudeUsageFile() string {
@@ -180,6 +181,8 @@ func runStatusLine() {
 			old.Updated, old.ContextUsed = u.Updated, u.ContextUsed
 			u = old
 		}
+	} else if old, ok := readClaudeUsage(); ok {
+		u.Plan = old.Plan
 	}
 	if out, err := json.Marshal(u); err == nil {
 		os.MkdirAll(filepath.Dir(claudeUsageFile()), 0o755)
@@ -225,7 +228,11 @@ func claudeView(now time.Time) (View, bool) {
 			}
 		}
 		p := Part{Label: label, Level: int(math.Round(left)), Sub: sub, Tint: tint}
-		if stale && sub != "reset" {
+		if left < 0.5 && ends > now.Unix() {
+			p.Level = 0
+			p.Note = "Used up"
+			p.Sub = "ready in " + untilText(ends, now)
+		} else if stale && sub != "reset" {
 			p.Note = "as of " + time.Unix(u.Updated, 0).Format("15:04")
 		}
 		v.Parts = append(v.Parts, p)

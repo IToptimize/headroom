@@ -7,21 +7,24 @@ import (
 	"time"
 )
 
-const appVersion = "1.2.1 beta"
+const appVersion = "1.3 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
-	Theme       int // 0 system, 1 light, 2 dark
-	ColorMode   int // 0 battery colours, 1 accent colour
-	Accent      int // index into accents
-	Icon        int // 0 ring, 1 ring + %, 2 pie
-	Compact     bool
-	Popups      map[int]bool // level -> enabled
-	Interval    int          // seconds between normal checks
-	ClaudeTray  bool         // orange Claude usage icon in the tray
-	ClaudePanel bool         // Claude row in the panel
-	ClaudeFetch bool         // opt-in: read usage via the Claude login (unofficial endpoint)
-	ClaudeEvery int          // minutes between usage fetches (2, 3 or 5)
+	Theme        int // 0 system, 1 light, 2 dark
+	ColorMode    int // 0 battery colours, 1 accent colour
+	Accent       int // index into accents
+	Icon         int // 0 ring, 1 ring + %, 2 pie
+	Compact      bool
+	Popups       map[int]bool // level -> enabled
+	Interval     int          // seconds between normal checks
+	ClaudeTray   bool         // orange Claude usage icon in the tray
+	ClaudePanel  bool         // Claude row in the panel
+	ClaudeFetch  bool         // opt-in: read usage via the Claude login (unofficial endpoint)
+	ClaudeEvery  int          // minutes between usage fetches (2, 3 or 5)
+	ClaudeLook   int          // 0 Headroom (ring = left), 1 Claude (ring = used, Claude colours)
+	ClaudeHover  bool         // Claude-style card when hovering the orange icon
+	ClaudeAlerts bool         // pop-ups when the 5-hour limit runs out / resets
 }
 
 var popupLevels = []int{50, 20, 10, 5}
@@ -46,17 +49,20 @@ func regInt(name string, def int) int {
 
 func loadConfig() {
 	cfg = config{
-		Theme:       regInt("Theme", 0),
-		ColorMode:   regInt("ColorMode", 0),
-		Accent:      regInt("Accent", 0),
-		Icon:        regInt("Icon", 0),
-		Compact:     regInt("Compact", 0) == 1,
-		Interval:    regInt("Interval", 60),
-		Popups:      map[int]bool{},
-		ClaudeTray:  regInt("ClaudeTray", 1) == 1,
-		ClaudePanel: regInt("ClaudePanel", 1) == 1,
-		ClaudeFetch: regInt("ClaudeFetch", 0) == 1,
-		ClaudeEvery: regInt("ClaudeEvery", 3),
+		Theme:        regInt("Theme", 0),
+		ColorMode:    regInt("ColorMode", 0),
+		Accent:       regInt("Accent", 0),
+		Icon:         regInt("Icon", 0),
+		Compact:      regInt("Compact", 0) == 1,
+		Interval:     regInt("Interval", 60),
+		Popups:       map[int]bool{},
+		ClaudeTray:   regInt("ClaudeTray", 1) == 1,
+		ClaudePanel:  regInt("ClaudePanel", 1) == 1,
+		ClaudeFetch:  regInt("ClaudeFetch", 0) == 1,
+		ClaudeEvery:  regInt("ClaudeEvery", 3),
+		ClaudeLook:   regInt("ClaudeLook", 0),
+		ClaudeHover:  regInt("ClaudeHover", 1) == 1,
+		ClaudeAlerts: regInt("ClaudeAlerts", 1) == 1,
 	}
 	for _, l := range popupLevels {
 		def := 0
@@ -93,6 +99,9 @@ func saveConfig() {
 	regSet("cfg|ClaudePanel", b(cfg.ClaudePanel))
 	regSet("cfg|ClaudeFetch", b(cfg.ClaudeFetch))
 	regSet("cfg|ClaudeEvery", strconv.Itoa(cfg.ClaudeEvery))
+	regSet("cfg|ClaudeLook", strconv.Itoa(cfg.ClaudeLook))
+	regSet("cfg|ClaudeHover", b(cfg.ClaudeHover))
+	regSet("cfg|ClaudeAlerts", b(cfg.ClaudeAlerts))
 	for _, l := range popupLevels {
 		regSet("cfg|Popup"+strconv.Itoa(l), b(cfg.Popups[l]))
 	}

@@ -37,17 +37,18 @@ const (
 )
 
 var (
-	hwnd           uintptr
-	taskbarCreated uintptr
-	curIcon        uintptr
-	mu             sync.Mutex
-	latest         []Reading
-	havePoll       bool
-	trackers       = map[string]*tracker{}
-	views          []View
-	notified       = map[string]map[int]bool{}
-	pollNow        = make(chan struct{}, 1)
-	debug          bool
+	hwnd            uintptr
+	taskbarCreated  uintptr
+	curIcon         uintptr
+	mu              sync.Mutex
+	latest          []Reading
+	havePoll        bool
+	trackers        = map[string]*tracker{}
+	views           []View
+	notified        = map[string]map[int]bool{}
+	pollNow         = make(chan struct{}, 1)
+	debug           bool
+	lastClaudeClick time.Time
 )
 
 func dbg(f string, a ...any) {
@@ -214,6 +215,24 @@ func trayView() (View, bool) {
 
 func wndProc(h, msg, wp, lp uintptr) uintptr {
 	switch {
+	case msg == wmTray && (lp>>16)&0xFFFF == 2: // orange Claude icon (version 4 events)
+		switch lp & 0xFFFF {
+		case 0x406: // NIN_POPUPOPEN: mouse is over the icon
+			showHoverCard(int(int16(wp&0xFFFF)), int(int16((wp>>16)&0xFFFF)))
+		case 0x407: // NIN_POPUPCLOSE
+			hideHoverCard()
+		case WM_LBUTTONUP, 0x400: // click (NIN_SELECT may follow WM_LBUTTONUP)
+			hideHoverCard()
+			if time.Since(lastClaudeClick) > 400*time.Millisecond {
+				lastClaudeClick = time.Now()
+				toggleFlyout()
+				requestPoll()
+			}
+		case WM_CONTEXTMENU:
+			hideHoverCard()
+			showClaudeMenu()
+		}
+		return 0
 	case msg == wmTray:
 		switch lp & 0xFFFF {
 		case WM_LBUTTONUP:
@@ -430,7 +449,7 @@ func showMenu() {
 	case cmd == idExit:
 		pDestroyWindow.Call(hwnd)
 	case cmd == idSettings:
-		showSettings()
+		showSettings(0)
 	case cmd == idReport:
 		createReport()
 	case cmd == idDeviceBase:

@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3 beta
+- Claude look option: the orange icon fills with what's *used* in Claude's colours (amber when high, red when nearly out).
+- A used-up limit shows as a full red ring (both looks) - before, 0 % left still showed a small sliver.
+- Hover card on the orange icon, modelled on Claude's usage popup (5-hour and weekly bars, reset times); clicking still opens the panel.
+- When the 5-hour limit runs out: "ready in …" countdown, a pop-up, and another pop-up when it's ready again (can be switched off).
+- Settings split into Headroom and Claude tabs; right-click the orange icon for its own menu and Claude settings.
+
 ## 1.2.1 beta
 - Choose how often Claude usage is fetched: 2, 3 (default) or 5 minutes.
 - Copy setup only quotes the exe path when it has spaces (PowerShell treats a quoted path as text).

@@ -30,6 +30,8 @@ One tiny exe, no vendor software, no background bloat.</p>
 
 If you use Claude Code on a Pro/Max plan, Headroom can also show how much of your usage limits is left: an **orange double ring** in the tray (outer = 5-hour session, inner = week) and a *Claude* row in the panel with reset times.
 
+Hover over the orange icon for a card like Claude's own usage popup; right-click it for Claude settings (look: Headroom = ring shows what's left, Claude = ring shows what's used in Claude's colours). When the 5-hour limit runs out you get a full red ring, a "ready in …" countdown and a pop-up, and another when it's ready again.
+
 It reads the numbers Claude Code hands to its status line, so it also gives you two rings under the Claude Code prompt:
 
 ```

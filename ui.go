@@ -279,6 +279,7 @@ func initPopups() {
 	registerPopupClass("HXFlyout", flyoutProc)
 	registerPopupClass("HXToast", toastProc)
 	registerPopupClass("HXSettings", settingsProc)
+	initHoverCard()
 	setHwnd = createPopup("HXSettings", 0)
 	flyHwnd = createPopup("HXFlyout", 0)
 	toastHwnd = createPopup("HXToast", WS_EX_NOACTIVATE)
@@ -391,7 +392,10 @@ func renderFlyout(vs []View, s float64) *canvas {
 				}
 				cx := ox + 34*s
 				c.ring(cx, py, L.partR*s, 3.5*s, 1, th.track)
-				if p.Level >= 0 {
+				switch {
+				case p.Tint > 0 && p.Level == 0:
+					c.ring(cx, py, L.partR*s, 3.5*s, 1, colRed) // used up
+				case p.Level >= 0:
 					c.ring(cx, py, L.partR*s, 3.5*s, math.Max(0.04, float64(p.Level)/100), pc)
 				}
 				c.text(p.Label, ox+56*s, py-9*s, int(13*s), 400, th.fg, alignLeft)
@@ -457,7 +461,7 @@ func renderFlyout(vs []View, s float64) *canvas {
 	lw := c.text("Settings", ox+18*s, oy+H-25*s, int(12*s), 600, accentText(th), alignLeft)
 	flyHits = append(flyHits, hit{ox + 10*s, oy + H - 30*s, ox + 26*s + float64(lw), oy + H - 4*s, func() {
 		hideFlyout()
-		showSettings()
+		showSettings(0)
 	}})
 	return c
 }
