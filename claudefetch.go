@@ -19,7 +19,7 @@ import (
 // stores in ~/.claude/.credentials.json and the *undocumented* endpoint
 // GET https://api.anthropic.com/api/oauth/usage, as community tools do.
 // The token is only read: never refreshed, written, logged or sent anywhere
-// but api.anthropic.com. At most one request per 5 minutes.
+// but api.anthropic.com. At most one request per 2-5 minutes (user choice).
 
 var (
 	winhttp               = syscall.NewLazyDLL("winhttp.dll")
@@ -37,7 +37,9 @@ var (
 	claudeFetchStatusLock = make(chan struct{}, 1)
 )
 
-const claudeFetchEvery = 5 * time.Minute
+// fetchEvery: the user's choice; the community source warns that polling
+// more often than ~3 minutes gets rate-limited, so 2 minutes is the floor.
+func fetchEvery() time.Duration { return time.Duration(cfg.ClaudeEvery) * time.Minute }
 
 func setFetchStatus(s string) {
 	claudeFetchStatusLock <- struct{}{}
@@ -138,7 +140,7 @@ func fetchClaudeUsage() time.Duration {
 	tok, err := readClaudeToken()
 	if err == errLoginExpired {
 		setFetchStatus("Login expired: open Claude once to refresh it")
-		return claudeFetchEvery
+		return fetchEvery()
 	}
 	if err != nil {
 		setFetchStatus(err.Error())
@@ -151,7 +153,7 @@ func fetchClaudeUsage() time.Duration {
 	case err != nil:
 		dbg("claude usage fetch: %v", err)
 		setFetchStatus("Couldn't reach Anthropic (offline?)")
-		return claudeFetchEvery
+		return fetchEvery()
 	case status == 401 || status == 403:
 		setFetchStatus("Login not accepted: open Claude once to refresh it")
 		return 10 * time.Minute
@@ -184,7 +186,7 @@ func fetchClaudeUsage() time.Duration {
 	u.HasLimits = u.HasSession || u.HasWeek
 	if !u.HasLimits {
 		setFetchStatus("No usage limits reported for this account")
-		return claudeFetchEvery
+		return fetchEvery()
 	}
 	if out, err := json.Marshal(u); err == nil {
 		os.MkdirAll(filepath.Dir(claudeUsageFile()), 0o755)
@@ -195,12 +197,12 @@ func fetchClaudeUsage() time.Duration {
 	}
 	setFetchStatus("Updated " + time.Now().Format("15:04"))
 	dbg("claude usage: session %.0f%% week %.0f%%", u.SessionUsed, u.WeekUsed)
-	return claudeFetchEvery
+	return fetchEvery()
 }
 
 func claudeFetchLoop() {
 	for {
-		wait := claudeFetchEvery
+		wait := fetchEvery()
 		if cfg.ClaudeFetch {
 			wait = fetchClaudeUsage()
 			pPostMessageW.Call(hwnd, wmClaudeCheck, 0, 0)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1 beta
+- Choose how often Claude usage is fetched: 2, 3 (default) or 5 minutes.
+- Copy setup only quotes the exe path when it has spaces (PowerShell treats a quoted path as text).
+
 ## 1.2 beta
 - Opt-in "Read usage from my Claude login": fetches Claude usage every 5 minutes via the login Claude Code stores (undocumented endpoint), so the orange ring works with the VS Code panel and when Claude Code is closed. Token is read-only, never logged, only sent to api.anthropic.com.
 

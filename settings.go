@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.2 beta"
+const appVersion = "1.2.1 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
@@ -21,6 +21,7 @@ type config struct {
 	ClaudeTray  bool         // orange Claude usage icon in the tray
 	ClaudePanel bool         // Claude row in the panel
 	ClaudeFetch bool         // opt-in: read usage via the Claude login (unofficial endpoint)
+	ClaudeEvery int          // minutes between usage fetches (2, 3 or 5)
 }
 
 var popupLevels = []int{50, 20, 10, 5}
@@ -55,6 +56,7 @@ func loadConfig() {
 		ClaudeTray:  regInt("ClaudeTray", 1) == 1,
 		ClaudePanel: regInt("ClaudePanel", 1) == 1,
 		ClaudeFetch: regInt("ClaudeFetch", 0) == 1,
+		ClaudeEvery: regInt("ClaudeEvery", 3),
 	}
 	for _, l := range popupLevels {
 		def := 0
@@ -65,6 +67,9 @@ func loadConfig() {
 	}
 	if cfg.Accent < 0 || cfg.Accent >= len(accents) {
 		cfg.Accent = 0
+	}
+	if cfg.ClaudeEvery != 2 && cfg.ClaudeEvery != 5 {
+		cfg.ClaudeEvery = 3
 	}
 	if cfg.Interval < 15 {
 		cfg.Interval = 60
@@ -87,6 +92,7 @@ func saveConfig() {
 	regSet("cfg|ClaudeTray", b(cfg.ClaudeTray))
 	regSet("cfg|ClaudePanel", b(cfg.ClaudePanel))
 	regSet("cfg|ClaudeFetch", b(cfg.ClaudeFetch))
+	regSet("cfg|ClaudeEvery", strconv.Itoa(cfg.ClaudeEvery))
 	for _, l := range popupLevels {
 		regSet("cfg|Popup"+strconv.Itoa(l), b(cfg.Popups[l]))
 	}

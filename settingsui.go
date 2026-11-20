@@ -103,7 +103,7 @@ func toggleSwitch(c *canvas, right, y float64, on bool, s float64, th theme, fli
 
 func renderSettings(s float64) *canvas {
 	th := currentTheme()
-	W, H := 760*s, 548*s
+	W, H := 760*s, 588*s
 	c, ox, oy := card(W, H, s, th)
 	setHits = nil
 	right := ox + W/2 - 18*s // left column
@@ -234,6 +234,21 @@ func renderSettings(s float64) *canvas {
 			}
 		})
 		y += 44 * s
+		if cfg.ClaudeFetch {
+			row("Check every", func(y float64) {
+				opts := []int{2, 3, 5}
+				sel := 1
+				for i, o := range opts {
+					if cfg.ClaudeEvery == o {
+						sel = i
+					}
+				}
+				segmented(c, right, y, []string{"2 min", "3 min", "5 min"}, sel, s, th, func(i int) {
+					cfg.ClaudeEvery = opts[i] // takes effect from the next check
+					changed()
+				})
+			})
+		}
 	}
 	row("Status line for Claude Code", func(y float64) {
 		segmented(c, right, y, []string{"Copy setup"}, 0, s, th, func(int) { copyClaudeSetup() })
