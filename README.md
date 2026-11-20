@@ -59,7 +59,7 @@ The icon, manifest and version info come from `rsrc_windows_amd64.syso`, generat
 llvm-windres --target=pe-x86-64 -i assets/headroom.rc -o rsrc_windows_amd64.syso
 ```
 
-Pushing a `v*` tag builds a release automatically (see `.github/workflows/build.yml`).
+Every push to `main` is built and vetted. To publish a release, bump `VERSION`: the workflow creates the `v…` tag and a GitHub release with `Headroom.exe` and `Headroom.zip` (see `.github/workflows/build.yml`).
 
 ### How it reads batteries
 
