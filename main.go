@@ -24,9 +24,10 @@ const (
 	fastInterval = 15 * time.Second
 	fastWindow   = 2 * time.Minute
 
-	wmTray    = WM_APP + 1
-	wmUpdated = WM_APP + 2
-	wmReport  = WM_APP + 3
+	wmTray        = WM_APP + 1
+	wmUpdated     = WM_APP + 2
+	wmReport      = WM_APP + 3
+	wmClaudeCheck = WM_APP + 4
 
 	idRefresh  = 1
 	idStartup  = 2
@@ -132,6 +133,7 @@ func main() {
 	cleanupLegacy()
 	pSetTimer.Call(hwnd, tmClaude, 5000, 0) // pick up Claude Code usage updates quickly
 	go pollLoop()
+	go claudeFetchLoop()
 
 	var m MSG
 	for {
@@ -226,6 +228,12 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 		return 0
 	case msg == wmReport:
 		finishReport()
+		return 0
+	case msg == wmClaudeCheck:
+		checkClaudeFile()
+		if setVisible {
+			applySettings()
+		}
 		return 0
 	case msg == taskbarCreated && taskbarCreated != 0:
 		addIcon()

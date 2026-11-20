@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.2 beta
+- Opt-in "Read usage from my Claude login": fetches Claude usage every 5 minutes via the login Claude Code stores (undocumented endpoint), so the orange ring works with the VS Code panel and when Claude Code is closed. Token is read-only, never logged, only sent to api.anthropic.com.
+
 ## 1.1 beta
 - Claude Code usage: `Headroom.exe --statusline` shows two rings (5-hour session, week) under the Claude Code prompt and feeds an orange double-ring tray icon plus a Claude row in the panel.
 - Settings in two columns, new Claude Code section (tray / panel toggles, Copy setup).

@@ -103,7 +103,7 @@ func toggleSwitch(c *canvas, right, y float64, on bool, s float64, th theme, fli
 
 func renderSettings(s float64) *canvas {
 	th := currentTheme()
-	W, H := 760*s, 500*s
+	W, H := 760*s, 548*s
 	c, ox, oy := card(W, H, s, th)
 	setHits = nil
 	right := ox + W/2 - 18*s // left column
@@ -213,6 +213,28 @@ func renderSettings(s float64) *canvas {
 	row("Usage in this panel", func(y float64) {
 		toggleSwitch(c, right, y+2*s, cfg.ClaudePanel, s, th, func() { cfg.ClaudePanel = !cfg.ClaudePanel; changed(); claudeFileMod = time.Time{}; checkClaudeFile() })
 	})
+	{
+		label := "Read usage from my Claude login"
+		sub := "Unofficial · token stays on this PC · works with the VS Code panel"
+		if cfg.ClaudeFetch {
+			if st := getFetchStatus(); st != "" {
+				sub = st
+			} else {
+				sub = "Checking…"
+			}
+		}
+		c.text(label, lx, y+1*s, int(13*s), 400, th.fg, alignLeft)
+		c.text(sub, lx, y+20*s, int(11*s), 400, th.muted, alignLeft)
+		toggleSwitch(c, right, y+2*s, cfg.ClaudeFetch, s, th, func() {
+			cfg.ClaudeFetch = !cfg.ClaudeFetch
+			changed()
+			if cfg.ClaudeFetch {
+				setFetchStatus("")
+				kickClaudeFetch()
+			}
+		})
+		y += 44 * s
+	}
 	row("Status line for Claude Code", func(y float64) {
 		segmented(c, right, y, []string{"Copy setup"}, 0, s, th, func(int) { copyClaudeSetup() })
 	})

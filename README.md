@@ -46,7 +46,9 @@ Setup: Headroom › Settings › **Copy setup**, then paste the block into `~/.c
 }
 ```
 
-Notes: the numbers update while Claude Code is running (the tray shows "as of …" otherwise, and a window counts as full again once its reset time has passed). The status line shows in Claude Code in a terminal; the VS Code extension's side panel doesn't render custom status lines.
+**Using the VS Code panel?** It doesn't run status lines, so Headroom can't get the numbers that way. Turn on **Settings › Read usage from my Claude login** instead: Headroom then asks Anthropic for your usage every 5 minutes using the login Claude Code already stored on your PC (`~/.claude/.credentials.json`). This uses an **undocumented** endpoint (the same one community tools use), so it may change or break; it's off by default. The token is only read (never refreshed or changed), never logged, and only sent to `api.anthropic.com`.
+
+Notes: with the status line, the numbers update while Claude Code is running (the tray shows "as of …" otherwise, and a window counts as full again once its reset time has passed). The status line shows in Claude Code in a terminal; the VS Code extension's side panel doesn't render custom status lines.
 
 ## Supported devices
 
