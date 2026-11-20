@@ -4,7 +4,7 @@
 <p align="center">Wireless headset battery in your Windows taskbar.<br>
 One tiny exe, no vendor software, no background bloat.</p>
 
-<p align="center"><img src="docs/tray.png" width="366" alt="Headroom's ring next to the clock"><br>
+<p align="center"><img src="docs/tray.png" width="183" alt="Headroom's ring next to the clock"><br>
 <sub>The green ring next to OneDrive is Headroom: a quick look at the taskbar tells you how much battery is left.</sub></p>
 
 <p align="center"><img src="docs/panel.png" width="640" alt="Headroom panel"><br>
