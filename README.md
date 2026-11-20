@@ -41,7 +41,7 @@ Setup: Headroom › Settings › **Copy setup**, then paste the block into `~/.c
 ```json
 "statusLine": {
   "type": "command",
-  "command": "\"C:/Users/you/AppData/Local/Programs/Headroom/Headroom.exe\" --statusline",
+  "command": "C:/Users/you/AppData/Local/Programs/Headroom/Headroom.exe --statusline",
   "padding": 0
 }
 ```

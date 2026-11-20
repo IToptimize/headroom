@@ -169,7 +169,11 @@ func checkClaudeFile() {
 func claudeSetupSnippet() string {
 	exe, _ := os.Executable()
 	exe = strings.ReplaceAll(exe, `\`, "/")
-	return "\"statusLine\": {\n  \"type\": \"command\",\n  \"command\": \"\\\"" + exe + "\\\" --statusline\",\n  \"padding\": 0\n}"
+	cmd := exe
+	if strings.Contains(exe, " ") { // only quote when needed: PowerShell treats a quoted path as text
+		cmd = `\"` + exe + `\"`
+	}
+	return "\"statusLine\": {\n  \"type\": \"command\",\n  \"command\": \"" + cmd + " --statusline\",\n  \"padding\": 0\n}"
 }
 
 func copyClaudeSetup() {
