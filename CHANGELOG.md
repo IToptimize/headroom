@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.4 beta
+- No more "Estimating time left…" placeholder; the time appears once there's a real estimate.
+- Reports include the shape of Claude's per-model limit fields, to find where the Fable limit lives.
+
 ## 1.4.3 beta
 - Claude panel and hover card now count the same way as the tray icon and say so ("89% left" / "11% used", following the Look setting). Before, the panel showed % left and the card % used, which looked like different numbers.
 - The plan (Pro/Max/Ultra) is detected from the account, so an upgrade shows without logging out and in. "Refresh now" checks it immediately.

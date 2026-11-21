@@ -78,7 +78,7 @@ func leftText(v View) string {
 		return ""
 	}
 	if v.Estimating {
-		return "Estimating time left…"
+		return "" // nothing to show until there's a real estimate
 	}
 	if v.Left <= 0 {
 		return ""

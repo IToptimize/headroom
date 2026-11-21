@@ -200,6 +200,20 @@ func fetchClaudeUsage() time.Duration {
 	}
 	sort.Strings(keys)
 	dbg("claude usage keys: %s", strings.Join(keys, ", "))
+	// the per-model limits seem to live in these newer fields; log their
+	// shape (usage numbers only, no account data) so a report shows it
+	if forceShapeLog.Swap(false) || time.Since(lastShapeLog) > 30*time.Minute {
+		lastShapeLog = time.Now()
+		for _, k := range keys {
+			if strings.HasPrefix(k, "seven_day") || k == "limits" || k == "usage_scopes" || k == "weekly_scoped_shares" {
+				v := string(all[k])
+				if len(v) > 700 {
+					v = v[:700] + "…"
+				}
+				dbg("claude usage %s = %s", k, v)
+			}
+		}
+	}
 	for _, k := range keys {
 		name, ok := strings.CutPrefix(k, "seven_day_")
 		if !ok || strings.Contains(name, "oauth") {
@@ -278,6 +292,8 @@ var (
 	profilePlan    string
 	profileChecked time.Time
 	forcePlanCheck atomic.Bool // "Refresh now" checks the plan too
+	lastShapeLog   time.Time
+	forceShapeLog  atomic.Bool // set at start and by "Report…"
 )
 
 func currentPlan() string {

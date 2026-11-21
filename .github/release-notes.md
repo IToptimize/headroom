@@ -12,6 +12,7 @@ Click it for the details:
 
 ### New: Claude Code usage
 An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt (**Settings → Copy setup**).
+**1.4.4:** no "Estimating…" placeholder; better diagnostics for per-model Claude limits.
 **1.4.3:** panel and hover card agree on "% left" / "% used"; the plan is detected automatically after an upgrade.
 **1.4.2:** headset panel and Claude panel are separate; each icon opens its own.
 **1.4.1:** extra weekly limits like Max's Fable limit appear in the hover card and panel.

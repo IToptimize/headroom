@@ -195,6 +195,10 @@ func copyToClipboard(s string) {
 // createReport saves the report next to the app, copies it to the clipboard
 // and opens it in Notepad.
 func createReport() {
+	if cfg.ClaudeFetch {
+		forceShapeLog.Store(true)
+		kickClaudeFetch()
+	}
 	remember("--- report requested ---")
 	requestPoll()
 	go func() {
