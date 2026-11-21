@@ -135,6 +135,10 @@ func buildReport() string {
 	w("%s %s report - %s", appName, appVersion, time.Now().Format("2006-01-02 15:04"))
 	w("Windows %s", windowsBuild())
 	w("")
+	if t := lastCrashText(); t != "" {
+		w("== %s", t)
+		w("")
+	}
 	w("== What %s shows ==", appName)
 	if len(views) == 0 {
 		w("(no devices)")

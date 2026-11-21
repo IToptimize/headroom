@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.7 beta
+- Crash capture: if Headroom ever closes unexpectedly, the error is saved (%LOCALAPPDATA%\Headroom\crash-last.log), you get a small notice on the next start, and the troubleshooting report includes it.
+
 ## 1.4.6 beta
 - The troubleshooting report button moved out of the settings to the bottom right of the Settings window ("Something not working?"), on both tabs.
 

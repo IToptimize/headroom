@@ -12,6 +12,7 @@ Click it for the details:
 
 ### New: Claude Code usage
 An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt (**Settings → Copy setup**).
+**1.4.7:** crashes are now captured and included in the troubleshooting report.
 **1.4.6:** troubleshooting report button sits apart at the bottom right of Settings.
 **1.4.5:** the troubleshooting report asks first and shortens Bluetooth addresses.
 **1.4.4:** no "Estimating…" placeholder; better diagnostics for per-model Claude limits.

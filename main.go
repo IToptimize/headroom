@@ -28,6 +28,7 @@ const (
 	wmUpdated     = WM_APP + 2
 	wmReport      = WM_APP + 3
 	wmClaudeCheck = WM_APP + 4
+	wmCrashNotice = WM_APP + 5
 
 	idRefresh  = 1
 	idStartup  = 2
@@ -67,6 +68,7 @@ func main() {
 		}
 	}
 	runtime.LockOSThread()
+	setupCrashLog()
 	loadConfig()
 	for _, a := range os.Args[1:] {
 		if a == "--debug" {
@@ -135,6 +137,7 @@ func main() {
 	pSetTimer.Call(hwnd, tmClaude, 5000, 0) // pick up Claude Code usage updates quickly
 	go pollLoop()
 	go claudeFetchLoop()
+	noticeLastCrash()
 
 	var m MSG
 	for {
@@ -259,6 +262,9 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 		return 0
 	case msg == wmReport:
 		finishReport()
+		return 0
+	case msg == wmCrashNotice:
+		showToast("Headroom closed unexpectedly last time", "Details are saved; a troubleshooting report includes them", 1, accentText(currentTheme()))
 		return 0
 	case msg == wmClaudeCheck:
 		checkClaudeFile()
