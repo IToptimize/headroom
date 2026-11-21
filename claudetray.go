@@ -81,11 +81,28 @@ func drawClaudeIcon(v View, sz int, light bool) *canvas {
 	ro := f/2 - to/2 - 0.4
 	ti := math.Max(1.8, f*0.13)
 	ri := ro - to/2 - ti/2 - math.Max(1, f*0.07)
+	// outer = 5-hour session; inner = the weekly limit chosen in settings:
+	// all models, the model-specific one (e.g. Fable), or whichever is
+	// closer to running out
 	levels := []int{-1, -1}
-	for i, p := range v.Parts {
-		if i < 2 {
-			levels[i] = p.Level
+	week, model := -1, -1
+	for _, p := range v.Parts {
+		switch {
+		case strings.HasPrefix(p.Label, "Session"):
+			levels[0] = p.Level
+		case p.Label == "Week":
+			week = p.Level
+		case strings.HasPrefix(p.Label, "Week · ") && model < 0:
+			model = p.Level
 		}
+	}
+	levels[1] = week
+	switch {
+	case model < 0:
+	case cfg.ClaudeInner == 1:
+		levels[1] = model
+	case cfg.ClaudeInner == 2 && (week < 0 || model < week):
+		levels[1] = model
 	}
 	draw := func(r, t float64, left int, week bool) {
 		c.ring(cx, cx, r, t, 1, track)

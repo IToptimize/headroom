@@ -230,6 +230,13 @@ func renderSettings(s float64) *canvas {
 		row("Look", func(y float64) {
 			segmented(c, right, y, []string{"Headroom", "Claude"}, cfg.ClaudeLook, s, th, func(i int) { cfg.ClaudeLook = i; changed() })
 		})
+		rowSub("Inner ring", "Outer ring = 5-hour limit", func(y float64) {
+			model := "Fable"
+			if u, ok := readClaudeUsage(); ok && len(u.Extra) > 0 {
+				model = u.Extra[0].Name
+			}
+			segmented(c, right, y, []string{"Weekly", model, "Most used"}, cfg.ClaudeInner, s, th, func(i int) { cfg.ClaudeInner = i; changed() })
+		})
 		row("Details when hovering the icon", func(y float64) {
 			toggleSwitch(c, right, y+2*s, cfg.ClaudeHover, s, th, func() {
 				cfg.ClaudeHover = !cfg.ClaudeHover

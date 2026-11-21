@@ -234,6 +234,47 @@ func fetchClaudeUsage() time.Duration {
 			}
 		}
 	}
+	// newer accounts list per-model weekly limits in "limits", e.g.
+	// {"kind":"weekly_scoped","percent":15,"resets_at":"…","scope":{"model":{"display_name":"Fable"}}}
+	var lims []struct {
+		Kind    string   `json:"kind"`
+		Percent *float64 `json:"percent"`
+		Resets  string   `json:"resets_at"`
+		Scope   *struct {
+			Model *struct {
+				Name string `json:"display_name"`
+			} `json:"model"`
+			Surface *struct {
+				Name string `json:"display_name"`
+			} `json:"surface"`
+		} `json:"scope"`
+	}
+	if raw, ok := all["limits"]; ok && json.Unmarshal(raw, &lims) == nil {
+		for _, l := range lims {
+			if l.Percent == nil || l.Scope == nil || !strings.HasPrefix(l.Kind, "weekly") {
+				continue
+			}
+			name := ""
+			switch {
+			case l.Scope.Model != nil && l.Scope.Model.Name != "":
+				name = l.Scope.Model.Name
+			case l.Scope.Surface != nil && l.Scope.Surface.Name != "":
+				name = l.Scope.Surface.Name
+			}
+			if name == "" {
+				continue
+			}
+			dup := false
+			for i, e := range u.Extra {
+				if strings.EqualFold(e.Name, name) {
+					u.Extra[i].Used, u.Extra[i].Ends, dup = *l.Percent, parseResets(l.Resets), true
+				}
+			}
+			if !dup {
+				u.Extra = append(u.Extra, claudeExtra{Name: name, Used: *l.Percent, Ends: parseResets(l.Resets)})
+			}
+		}
+	}
 	u.HasLimits = u.HasSession || u.HasWeek
 	if !u.HasLimits {
 		setFetchStatus("No usage limits reported for this account")

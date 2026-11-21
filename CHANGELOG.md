@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5 beta
+- Fable (and any other per-model weekly limit) now shows: read from the account's newer "limits" list, in the panel and hover card as "Week · Fable".
+- New setting Claude › Inner ring: Weekly, Fable, or Most used (default): the inner tray ring shows whichever limit you choose, or the one closest to running out.
+
 ## 1.4.7 beta
 - Crash capture: if Headroom ever closes unexpectedly, the error is saved (%LOCALAPPDATA%\Headroom\crash-last.log), you get a small notice on the next start, and the troubleshooting report includes it.
 
