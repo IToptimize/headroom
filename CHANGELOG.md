@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.1 beta
+- Shows extra weekly limits the account reports (e.g. the separate Fable limit on Max) in the hover card and panel, when "Read usage from my Claude login" is on.
+
 ## 1.4 beta
 - Claude rings colour by usage in both looks: purple while there's room, then yellow, orange and red; inner ring = weekly, a full red ring when used up.
 - Redesigned hover card ("Claude usage", plan pill, bars in the same usage colours, reset time and countdown).

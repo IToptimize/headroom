@@ -31,6 +31,15 @@ type claudeUsage struct {
 	HasWeek     bool    `json:"has_week"`
 	ContextUsed float64 `json:"context_used,omitempty"`
 	Plan        string  `json:"plan,omitempty"` // "pro", "max"... (from the login, when known)
+	// Extra weekly limits the account reports besides the all-models one
+	// (e.g. a separate Fable limit on Max), from the usage fetch only.
+	Extra []claudeExtra `json:"extra,omitempty"`
+}
+
+type claudeExtra struct {
+	Name string  `json:"name"` // "Fable", "Opus"...
+	Used float64 `json:"used"`
+	Ends int64   `json:"resets_at"`
 }
 
 func claudeUsageFile() string {
@@ -182,7 +191,7 @@ func runStatusLine() {
 			u = old
 		}
 	} else if old, ok := readClaudeUsage(); ok {
-		u.Plan = old.Plan
+		u.Plan, u.Extra = old.Plan, old.Extra
 	}
 	if out, err := json.Marshal(u); err == nil {
 		os.MkdirAll(filepath.Dir(claudeUsageFile()), 0o755)
@@ -238,7 +247,11 @@ func claudeView(now time.Time) (View, bool) {
 		v.Parts = append(v.Parts, p)
 	}
 	part("Session (5 h)", u.HasSession, u.SessionUsed, u.SessionEnds, 1)
+
 	part("Week", u.HasWeek, u.WeekUsed, u.WeekEnds, 2)
+	for _, e := range u.Extra {
+		part("Week · "+e.Name, true, e.Used, e.Ends, 2)
+	}
 	if len(v.Parts) == 0 {
 		return View{}, false
 	}

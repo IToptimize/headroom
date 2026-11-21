@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 	"syscall"
 	"time"
 	"unsafe"
@@ -173,6 +175,8 @@ func fetchClaudeUsage() time.Duration {
 		FiveHour *usageWindow `json:"five_hour"`
 		SevenDay *usageWindow `json:"seven_day"`
 	}
+	var all map[string]json.RawMessage
+	json.Unmarshal(body, &all)
 	if json.Unmarshal(body, &r) != nil {
 		setFetchStatus("Unexpected answer format")
 		return 15 * time.Minute
@@ -186,6 +190,24 @@ func fetchClaudeUsage() time.Duration {
 	}
 	if w := r.SevenDay; w != nil && w.Utilization != nil {
 		u.HasWeek, u.WeekUsed, u.WeekEnds = true, *w.Utilization, parseResets(w.ResetsAt)
+	}
+	// any other weekly limit (seven_day_fable, seven_day_opus...) with a value
+	keys := make([]string, 0, len(all))
+	for k := range all {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	dbg("claude usage keys: %s", strings.Join(keys, ", "))
+	for _, k := range keys {
+		name, ok := strings.CutPrefix(k, "seven_day_")
+		if !ok || strings.Contains(name, "oauth") {
+			continue
+		}
+		var w usageWindow
+		if json.Unmarshal(all[k], &w) != nil || w.Utilization == nil {
+			continue
+		}
+		u.Extra = append(u.Extra, claudeExtra{Name: limitName(name), Used: *w.Utilization, Ends: parseResets(w.ResetsAt)})
 	}
 	u.HasLimits = u.HasSession || u.HasWeek
 	if !u.HasLimits {
@@ -223,4 +245,15 @@ func kickClaudeFetch() {
 	case claudeFetchKick <- struct{}{}:
 	default:
 	}
+}
+
+// limitName turns "fable" / "sonnet_4" into "Fable" / "Sonnet 4".
+func limitName(k string) string {
+	parts := strings.Split(k, "_")
+	for i, p := range parts {
+		if p != "" {
+			parts[i] = strings.ToUpper(p[:1]) + p[1:]
+		}
+	}
+	return strings.Join(parts, " ")
 }

@@ -57,6 +57,9 @@ func renderHoverCard(s float64) *canvas {
 		{"5-hour session", u.HasSession, u.SessionUsed, u.SessionEnds},
 		{"Weekly", u.HasWeek, u.WeekUsed, u.WeekEnds},
 	}
+	for _, e := range u.Extra {
+		blocks = append(blocks, block{"Weekly · " + e.Name, true, e.Used, e.Ends})
+	}
 	n := 0
 	for _, b := range blocks {
 		if b.has {
