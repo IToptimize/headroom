@@ -37,32 +37,46 @@ func currentClaude() (View, bool) {
 	return claudeView(time.Now()) // panel row may be hidden; the icon still works
 }
 
-// usedColor: the usage scale used everywhere for Claude limits —
-// calm purple while there's room, then yellow, orange and red as it fills.
-func usedColor(used float64, light bool) color {
-	type stop struct {
-		at float64
-		c  color
+// Claude limit colours ("Dusk"): each limit has its own calm colour while
+// there's room, and all of them share the same warning colours as they
+// fill: yellow at 60 %, orange 80 %, red 92 %, full red when used up.
+const (
+	limSession = 0 // 5-hour
+	limWeek    = 1 // weekly, all models
+	limModel   = 2 // a model's own weekly limit (e.g. Fable)
+)
+
+var limitCalm = [3]color{
+	{139, 112, 224, 1}, // violet
+	{91, 141, 239, 1},  // blue
+	{63, 181, 168, 1},  // teal
+}
+
+func usedColor(used float64, light bool) color { return limitColor(limSession, used) }
+
+func limitColor(kind int, used float64) color {
+	if kind < 0 || kind > 2 {
+		kind = limSession
 	}
-	stops := []stop{
-		{0, color{139, 112, 224, 1}},  // purple
-		{50, color{139, 112, 224, 1}}, // purple
-		{65, color{226, 190, 76, 1}},  // yellow
-		{80, color{232, 136, 64, 1}},  // orange
-		{92, color{226, 76, 76, 1}},   // red
+	yellow, orange, red := color{226, 190, 76, 1}, color{232, 136, 64, 1}, color{226, 76, 76, 1}
+	mix := func(a, b color, t float64) color {
+		m := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t + 0.5) }
+		return color{m(a.r, b.r), m(a.g, b.g), m(a.b, b.b), 1}
 	}
-	if used >= 99.5 {
+	// no blend from the calm colour into yellow: mixing blue or teal with
+	// yellow passes through grey (RGB) or green (hue), both misleading. A
+	// clean switch at 60 % reads as "getting tight now".
+	switch {
+	case used >= 99.5:
 		return colRed
+	case used < 60:
+		return limitCalm[kind]
+	case used < 80:
+		return mix(yellow, orange, (used-60)/20)
+	case used < 92:
+		return mix(orange, red, (used-80)/12)
 	}
-	for i := 1; i < len(stops); i++ {
-		a, b := stops[i-1], stops[i]
-		if used <= b.at {
-			t := (used - a.at) / (b.at - a.at)
-			mix := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t + 0.5) }
-			return color{mix(a.c.r, b.c.r), mix(a.c.g, b.c.g), mix(a.c.b, b.c.b), 1}
-		}
-	}
-	return stops[len(stops)-1].c
+	return red
 }
 
 // drawClaudeIcon: outer ring = 5-hour session, inner = week.
@@ -97,14 +111,13 @@ func drawClaudeIcon(v View, sz int, light bool) *canvas {
 		}
 	}
 	levels[1] = week
+	innerKind := limWeek
 	switch {
 	case model < 0:
-	case cfg.ClaudeInner == 1:
-		levels[1] = model
-	case cfg.ClaudeInner == 2 && (week < 0 || model < week):
-		levels[1] = model
+	case cfg.ClaudeInner == 1, cfg.ClaudeInner == 2 && (week < 0 || model < week):
+		levels[1], innerKind = model, limModel
 	}
-	draw := func(r, t float64, left int, week bool) {
+	draw := func(r, t float64, left int, kind int) {
 		c.ring(cx, cx, r, t, 1, track)
 		if left < 0 {
 			return
@@ -116,15 +129,15 @@ func drawClaudeIcon(v View, sz int, light bool) *canvas {
 		if cfg.ClaudeLook == 1 {
 			used := 100 - float64(left)
 			if used > 0 {
-				c.ring(cx, cx, r, t, math.Max(0.04, used/100), usedColor(used, light))
+				c.ring(cx, cx, r, t, math.Max(0.04, used/100), limitColor(kind, used))
 			}
 			return
 		}
-		c.ring(cx, cx, r, t, math.Max(0.04, float64(left)/100), usedColor(100-float64(left), light))
+		c.ring(cx, cx, r, t, math.Max(0.04, float64(left)/100), limitColor(kind, 100-float64(left)))
 	}
-	draw(ro, to, levels[0], false)
+	draw(ro, to, levels[0], limSession)
 	if ri > ti/2 {
-		draw(ri, ti, levels[1], true)
+		draw(ri, ti, levels[1], innerKind)
 	}
 	return c
 }

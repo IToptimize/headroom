@@ -485,8 +485,8 @@ func partColor(p Part) color {
 	if p.Level < 0 {
 		return colGrey
 	}
-	if p.Tint > 0 {
-		return usedColor(100-float64(p.Level), panelLight())
+	if p.Tint > 0 { // Claude limits: Tint 1 session, 2 weekly, 3 model limit
+		return limitColor(p.Tint-1, 100-float64(p.Level))
 	}
 	return batteryColor(p.Level, p.Charging)
 }

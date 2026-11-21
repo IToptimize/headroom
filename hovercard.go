@@ -50,7 +50,6 @@ func planName(p string) string {
 
 func renderHoverCard(s float64) *canvas {
 	th := currentTheme()
-	light := panelLight()
 	u, _ := readClaudeUsage()
 	now := time.Now()
 	type block struct {
@@ -58,13 +57,14 @@ func renderHoverCard(s float64) *canvas {
 		has  bool
 		used float64
 		ends int64
+		kind int
 	}
 	blocks := []block{
-		{"5-hour session", u.HasSession, u.SessionUsed, u.SessionEnds},
-		{"Weekly", u.HasWeek, u.WeekUsed, u.WeekEnds},
+		{"5-hour session", u.HasSession, u.SessionUsed, u.SessionEnds, limSession},
+		{"Weekly", u.HasWeek, u.WeekUsed, u.WeekEnds, limWeek},
 	}
 	for _, e := range u.Extra {
-		blocks = append(blocks, block{"Weekly · " + e.Name, true, e.Used, e.Ends})
+		blocks = append(blocks, block{"Weekly · " + e.Name, true, e.Used, e.Ends, limModel})
 	}
 	n := 0
 	for _, b := range blocks {
@@ -95,7 +95,7 @@ func renderHoverCard(s float64) *canvas {
 		if resetPassed {
 			used = 0
 		}
-		col := usedColor(used, light)
+		col := limitColor(b.kind, used)
 		c.text(b.name, lx, y, int(12*s), 600, th.fg, alignLeft)
 		pcol := th.fg
 		if used >= 99.5 {

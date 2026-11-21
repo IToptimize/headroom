@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.1 beta
+- "Dusk" colours for Claude limits: 5-hour violet, weekly blue, Fable (model limits) teal while there's room; all switch to the same yellow at 60 %, orange at 80 % and red at 92 %. No more muddy in-between colours.
+
 ## 1.5 beta
 - Fable (and any other per-model weekly limit) now shows: read from the account's newer "limits" list, in the panel and hover card as "Week · Fable".
 - New setting Claude › Inner ring: Weekly, Fable, or Most used (default): the inner tray ring shows whichever limit you choose, or the one closest to running out.

@@ -250,7 +250,7 @@ func claudeView(now time.Time) (View, bool) {
 
 	part("Week", u.HasWeek, u.WeekUsed, u.WeekEnds, 2)
 	for _, e := range u.Extra {
-		part("Week · "+e.Name, true, e.Used, e.Ends, 2)
+		part("Week · "+e.Name, true, e.Used, e.Ends, 3)
 	}
 	if len(v.Parts) == 0 {
 		return View{}, false
