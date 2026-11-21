@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -219,10 +218,28 @@ func createReport() {
 	}()
 }
 
-var macRe = regexp.MustCompile(`mac=([0-9A-Fa-f]{8})([0-9A-Fa-f]{4})`)
+// shortenMACs turns "mac=C4B3498BCA04" into "mac=…CA04".
+func shortenMACs(s string) string {
+	var b strings.Builder
+	for {
+		i := strings.Index(s, "mac=")
+		if i < 0 || len(s) < i+16 {
+			b.WriteString(s)
+			return b.String()
+		}
+		b.WriteString(s[:i+4])
+		hex := s[i+4 : i+16]
+		if strings.Trim(hex, "0123456789abcdefABCDEF") == "" {
+			b.WriteString("…" + hex[8:])
+		} else {
+			b.WriteString(hex)
+		}
+		s = s[i+16:]
+	}
+}
 
 func finishReport() {
-	text := macRe.ReplaceAllString(buildReport(), "mac=…$2") // keep only the last 4
+	text := shortenMACs(buildReport()) // keep only the last 4
 	exe, _ := os.Executable()
 	path := filepath.Join(filepath.Dir(exe), "headroom-report.txt")
 	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
