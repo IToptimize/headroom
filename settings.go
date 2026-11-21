@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.4.1 beta"
+const appVersion = "1.4.2 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
@@ -19,7 +19,6 @@ type config struct {
 	Popups       map[int]bool // level -> enabled
 	Interval     int          // seconds between normal checks
 	ClaudeTray   bool         // orange Claude usage icon in the tray
-	ClaudePanel  bool         // Claude row in the panel
 	ClaudeFetch  bool         // opt-in: read usage via the Claude login (unofficial endpoint)
 	ClaudeEvery  int          // minutes between usage fetches (2, 3 or 5)
 	ClaudeLook   int          // 0 Headroom (ring = left), 1 Claude (ring = used, Claude colours)
@@ -57,7 +56,6 @@ func loadConfig() {
 		Interval:     regInt("Interval", 60),
 		Popups:       map[int]bool{},
 		ClaudeTray:   regInt("ClaudeTray", 1) == 1,
-		ClaudePanel:  regInt("ClaudePanel", 1) == 1,
 		ClaudeFetch:  regInt("ClaudeFetch", 0) == 1,
 		ClaudeEvery:  regInt("ClaudeEvery", 3),
 		ClaudeLook:   regInt("ClaudeLook", 0),
@@ -96,7 +94,6 @@ func saveConfig() {
 	regSet("cfg|Compact", b(cfg.Compact))
 	regSet("cfg|Interval", strconv.Itoa(cfg.Interval))
 	regSet("cfg|ClaudeTray", b(cfg.ClaudeTray))
-	regSet("cfg|ClaudePanel", b(cfg.ClaudePanel))
 	regSet("cfg|ClaudeFetch", b(cfg.ClaudeFetch))
 	regSet("cfg|ClaudeEvery", strconv.Itoa(cfg.ClaudeEvery))
 	regSet("cfg|ClaudeLook", strconv.Itoa(cfg.ClaudeLook))

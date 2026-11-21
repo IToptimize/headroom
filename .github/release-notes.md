@@ -12,6 +12,7 @@ Click it for the details:
 
 ### New: Claude Code usage
 An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt (**Settings → Copy setup**).
+**1.4.2:** headset panel and Claude panel are separate; each icon opens its own.
 **1.4.1:** extra weekly limits like Max's Fable limit appear in the hover card and panel.
 **1.4:** Claude rings go purple → yellow → orange → red as you use them up, a redesigned hover card that appears right above the icon after 0.5 s, and a calmer green.
 **1.3:** Claude look (ring = used, amber/red like Claude), a hover card like Claude's usage popup, a full red ring plus "ready in…" countdown and reminder pop-ups when the 5-hour limit runs out, and separate Headroom / Claude settings tabs.

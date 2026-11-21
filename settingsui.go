@@ -244,9 +244,6 @@ func renderSettings(s float64) *canvas {
 				renderClaudeIcon()
 			})
 		})
-		row("Show in the headset panel", func(y float64) {
-			toggleSwitch(c, right, y+2*s, cfg.ClaudePanel, s, th, func() { cfg.ClaudePanel = !cfg.ClaudePanel; changed(); claudeFileMod = time.Time{}; checkClaudeFile() })
-		})
 		rowSub("Pop-up when the 5-hour limit", "runs out, and when it's ready again", func(y float64) {
 			toggleSwitch(c, right, y+2*s, cfg.ClaudeAlerts, s, th, func() { cfg.ClaudeAlerts = !cfg.ClaudeAlerts; changed() })
 		})

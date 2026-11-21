@@ -364,8 +364,12 @@ func renderFlyout(vs []View, s float64) *canvas {
 	if len(vs) == 0 {
 		cy := oy + (padTop+rowH/2)*s
 		c.ring(ox+44*s, cy, 22*s, 5*s, 1, th.track)
-		c.text("No headset found", ox+84*s, cy-20*s, int(14*s), 600, th.fg, alignLeft)
-		c.text("Plug in the dongle or connect a Bluetooth headset", ox+84*s, cy+2*s, int(12*s), 400, th.muted, alignLeft)
+		t1, t2 := "No headset found", "Plug in the dongle or connect a Bluetooth headset"
+		if flyMode == 1 {
+			t1, t2 = "No Claude usage yet", "Turn on reading usage in Claude settings"
+		}
+		c.text(t1, ox+84*s, cy-20*s, int(14*s), 600, th.fg, alignLeft)
+		c.text(t2, ox+84*s, cy+2*s, int(12*s), 400, th.muted, alignLeft)
 	}
 	y := oy + padTop*s
 	for i, v := range vs {
@@ -461,7 +465,7 @@ func renderFlyout(vs []View, s float64) *canvas {
 	lw := c.text("Settings", ox+18*s, oy+H-25*s, int(12*s), 600, accentText(th), alignLeft)
 	flyHits = append(flyHits, hit{ox + 10*s, oy + H - 30*s, ox + 26*s + float64(lw), oy + H - 4*s, func() {
 		hideFlyout()
-		showSettings(0)
+		showSettings(flyMode)
 	}})
 	return c
 }
@@ -476,11 +480,15 @@ func partColor(p Part) color {
 	return batteryColor(p.Level, p.Charging)
 }
 
-func toggleFlyout() {
+func toggleFlyout(mode int) {
 	if flyVisible {
 		hideFlyout()
-		return
+		if mode == flyMode {
+			return
+		}
+		flyHidden = time.Time{} // switching panels: open the other one now
 	}
+	flyMode = mode
 	if time.Since(flyHidden) < 350*time.Millisecond { // the click that closed it
 		return
 	}

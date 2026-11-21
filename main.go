@@ -188,7 +188,19 @@ func requestPoll() {
 	}
 }
 
-func currentViews() []View { return views }
+// flyMode: which panel is open. 0 = headsets (from the headset icon),
+// 1 = Claude (from the orange icon). The two never mix.
+var flyMode int
+
+func currentViews() []View {
+	if flyMode == 1 {
+		if cv, ok := claudeView(time.Now()); ok {
+			return []View{cv}
+		}
+		return nil
+	}
+	return views
+}
 
 // trayView picks the device shown in the tray: the one chosen in the menu if
 // it is connected, else the first connected device, else the first device.
@@ -225,7 +237,7 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 			hoverLeave()
 			if time.Since(lastClaudeClick) > 400*time.Millisecond {
 				lastClaudeClick = time.Now()
-				toggleFlyout()
+				toggleFlyout(1)
 				requestPoll()
 			}
 		case WM_CONTEXTMENU:
@@ -236,7 +248,7 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 	case msg == wmTray:
 		switch lp & 0xFFFF {
 		case WM_LBUTTONUP:
-			toggleFlyout()
+			toggleFlyout(0)
 			requestPoll()
 		case WM_RBUTTONUP, WM_CONTEXTMENU:
 			showMenu()
@@ -327,9 +339,6 @@ func onUpdate() {
 		v := t.update(r, now)
 		dbg("view %+v", v)
 		vs = append(vs, v)
-	}
-	if cv, ok := claudeView(now); ok && cfg.ClaudePanel {
-		vs = append(vs, cv)
 	}
 	views = vs
 	render()

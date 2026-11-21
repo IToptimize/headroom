@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.2 beta
+- Headroom and Claude are now fully separate: the headset panel only shows headsets, and clicking the orange icon opens its own Claude panel ("Show in the headset panel" removed).
+
 ## 1.4.1 beta
 - Shows extra weekly limits the account reports (e.g. the separate Fable limit on Max) in the hover card and panel, when "Read usage from my Claude login" is on.
 

@@ -210,18 +210,7 @@ func checkClaudeFile() {
 		return
 	}
 	claudeFileMod = st.ModTime()
-	// rebuild the views list with fresh Claude numbers, without re-polling devices
-	vs := views[:0:0]
-	for _, v := range views {
-		if v.ID != "claude" {
-			vs = append(vs, v)
-		}
-	}
-	if cv, ok := claudeView(time.Now()); ok && cfg.ClaudePanel {
-		vs = append(vs, cv)
-	}
-	views = vs
-	render()
+	render() // fresh Claude numbers for the orange icon and its panel
 }
 
 // claudeSetupSnippet is the settings.json block for this install.
