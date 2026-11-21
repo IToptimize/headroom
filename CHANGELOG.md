@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.3 beta
+- Adds a Start menu shortcut for the installed copy, so searching "Headroom" in Windows finds it (existing installs get it on next start).
+
 ## 1.5.2 beta
 - Inner ring "Most used" is now "Auto" (still the default): it shows the weekly limit (blue) and only switches to the model limit (e.g. Fable) when that one is ahead and 60 %+ used.
 

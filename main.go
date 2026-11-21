@@ -134,6 +134,7 @@ func main() {
 		autoPinOnce() // first run after choosing "start with Windows": keep the icon visible
 	}
 	cleanupLegacy()
+	ensureStartMenuShortcut()
 	pSetTimer.Call(hwnd, tmClaude, 5000, 0) // pick up Claude Code usage updates quickly
 	go pollLoop()
 	go claudeFetchLoop()

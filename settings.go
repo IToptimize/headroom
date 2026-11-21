@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.5.2 beta"
+const appVersion = "1.5.3 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
