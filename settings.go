@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.3 beta"
+const appVersion = "1.4 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
@@ -31,7 +31,7 @@ var popupLevels = []int{50, 20, 10, 5}
 
 var accents = []color{
 	{59, 130, 246, 1}, // blue
-	{34, 197, 94, 1},  // green
+	{88, 168, 124, 1}, // green (calm)
 	{168, 85, 247, 1}, // purple
 	{236, 72, 153, 1}, // pink
 	{249, 115, 22, 1}, // orange

@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4 beta
+- Claude rings colour by usage in both looks: purple while there's room, then yellow, orange and red; inner ring = weekly, a full red ring when used up.
+- Redesigned hover card ("Claude usage", plan pill, bars in the same usage colours, reset time and countdown).
+- Hover card now sits right above the tray icon (it used to appear in a corner) and only appears after resting on the icon for 0.5 s.
+- Calmer green for battery rings, toggles and the green accent.
+
 ## 1.3 beta
 - Claude look option: the orange icon fills with what's *used* in Claude's colours (amber when high, red when nearly out).
 - A used-up limit shows as a full red ring (both looks) - before, 0 % left still showed a small sliver.

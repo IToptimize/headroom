@@ -27,7 +27,7 @@ func currentTheme() theme {
 }
 
 var (
-	colGreen = color{34, 197, 94, 1}
+	colGreen = color{88, 168, 124, 1} // calm sage, not neon
 	colAmber = color{245, 158, 11, 1}
 	colRed   = color{239, 68, 68, 1}
 	colBlue  = color{59, 130, 246, 1}
@@ -471,7 +471,7 @@ func partColor(p Part) color {
 		return colGrey
 	}
 	if p.Tint > 0 {
-		return claudeTint(float64(p.Level), p.Tint == 2)
+		return usedColor(100-float64(p.Level), panelLight())
 	}
 	return batteryColor(p.Level, p.Charging)
 }

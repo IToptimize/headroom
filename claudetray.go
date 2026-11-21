@@ -37,23 +37,37 @@ func currentClaude() (View, bool) {
 	return claudeView(time.Now()) // panel row may be hidden; the icon still works
 }
 
-// usedColor: Claude's own scheme for "how much is used".
+// usedColor: the usage scale used everywhere for Claude limits —
+// calm purple while there's room, then yellow, orange and red as it fills.
 func usedColor(used float64, light bool) color {
-	switch {
-	case used >= 90:
+	type stop struct {
+		at float64
+		c  color
+	}
+	stops := []stop{
+		{0, color{139, 112, 224, 1}},  // purple
+		{50, color{139, 112, 224, 1}}, // purple
+		{65, color{226, 190, 76, 1}},  // yellow
+		{80, color{232, 136, 64, 1}},  // orange
+		{92, color{226, 76, 76, 1}},   // red
+	}
+	if used >= 99.5 {
 		return colRed
-	case used >= 75:
-		return colAmber
 	}
-	if light {
-		return color{40, 40, 40, 1}
+	for i := 1; i < len(stops); i++ {
+		a, b := stops[i-1], stops[i]
+		if used <= b.at {
+			t := (used - a.at) / (b.at - a.at)
+			mix := func(x, y uint8) uint8 { return uint8(float64(x) + (float64(y)-float64(x))*t + 0.5) }
+			return color{mix(a.c.r, b.c.r), mix(a.c.g, b.c.g), mix(a.c.b, b.c.b), 1}
+		}
 	}
-	return color{235, 235, 235, 1}
+	return stops[len(stops)-1].c
 }
 
 // drawClaudeIcon: outer ring = 5-hour session, inner = week.
-// Headroom look: ring fills with what's left, Claude orange/peach.
-// Claude look: ring fills with what's used, neutral -> amber -> red.
+// Headroom look: ring fills with what's left. Claude look: with what's used.
+// Both colour by usage: purple -> yellow -> orange -> red.
 // A used-up window is a full red ring in both looks.
 func drawClaudeIcon(v View, sz int, light bool) *canvas {
 	c := newCanvas(sz, sz)
@@ -89,7 +103,7 @@ func drawClaudeIcon(v View, sz int, light bool) *canvas {
 			}
 			return
 		}
-		c.ring(cx, cx, r, t, math.Max(0.04, float64(left)/100), claudeTint(float64(left), week))
+		c.ring(cx, cx, r, t, math.Max(0.04, float64(left)/100), usedColor(100-float64(left), light))
 	}
 	draw(ro, to, levels[0], false)
 	if ri > ti/2 {

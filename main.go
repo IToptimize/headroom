@@ -218,18 +218,18 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 	case msg == wmTray && (lp>>16)&0xFFFF == 2: // orange Claude icon (version 4 events)
 		switch lp & 0xFFFF {
 		case 0x406: // NIN_POPUPOPEN: mouse is over the icon
-			showHoverCard(int(int16(wp&0xFFFF)), int(int16((wp>>16)&0xFFFF)))
+			hoverEnter()
 		case 0x407: // NIN_POPUPCLOSE
-			hideHoverCard()
+			hoverLeave()
 		case WM_LBUTTONUP, 0x400: // click (NIN_SELECT may follow WM_LBUTTONUP)
-			hideHoverCard()
+			hoverLeave()
 			if time.Since(lastClaudeClick) > 400*time.Millisecond {
 				lastClaudeClick = time.Now()
 				toggleFlyout()
 				requestPoll()
 			}
 		case WM_CONTEXTMENU:
-			hideHoverCard()
+			hoverLeave()
 			showClaudeMenu()
 		}
 		return 0
@@ -258,6 +258,9 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 		addIcon()
 		claudeIconShown = false
 		renderClaudeIcon()
+		return 0
+	case msg == WM_TIMER && wp == tmHover:
+		hoverTimer()
 		return 0
 	case msg == WM_TIMER && wp == tmClaude:
 		checkClaudeFile()
