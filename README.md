@@ -20,7 +20,7 @@ One tiny exe, no vendor software, no background bloat.</p>
 - **Learns your real drain rate** (LEDs on/off makes a huge difference) and gets more accurate with use. Handles headsets that only report coarse steps.
 - **Silent pop-ups** at 50 / 20 / 10 / 5 % (pick which).
 - **Settings**: light/dark/system theme, battery colours or an accent colour, compact layout, refresh speed, start with Windows, always show in taskbar.
-- **Report my headset**: one click builds a text report (devices seen, readings, recent log) for bug reports.
+- **Troubleshooting report**: builds a text report (devices seen, readings, recent log) for bug reports. It asks first, shortens Bluetooth addresses, and opens in Notepad so you can read it before sharing.
 - **Claude Code usage** (optional): an orange ring for your Claude session and weekly limits, see below.
 - ~2.8 MB single exe, a few MB of RAM, no installer and no admin rights needed.
 
@@ -66,7 +66,7 @@ Notes: with the status line, the numbers update while Claude Code is running (th
 | Apple / Beats | AirPods (all), Beats: left, right and case from their Bluetooth broadcast | tested (AirPods 4) |
 | Any Bluetooth headset | anything that shows its battery in *Settings › Bluetooth & devices* | tested |
 
-"Untested" means the protocol is ported from an open-source project but nobody has confirmed it on real hardware with Headroom yet. If you own one, please try it and report back (right-click › **Report my headset…**).
+"Untested" means the protocol is ported from an open-source project but nobody has confirmed it on real hardware with Headroom yet. If you own one, please try it and report back (right-click › **Create troubleshooting report…**).
 
 ## Install
 

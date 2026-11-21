@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.5 beta
+- "Report my headset…" is now "Create troubleshooting report…", asks first with a short list of what's included, and shortens Bluetooth addresses in the report.
+
 ## 1.4.4 beta
 - No more "Estimating time left…" placeholder; the time appears once there's a real estimate.
 - Reports include the shape of Claude's per-model limit fields, to find where the Fable limit lives.

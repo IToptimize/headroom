@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
@@ -195,6 +196,17 @@ func copyToClipboard(s string) {
 // createReport saves the report next to the app, copies it to the clipboard
 // and opens it in Notepad.
 func createReport() {
+	msg := "This creates a text file with what Headroom can see on this PC:\n\n" +
+		"•  connected USB and Bluetooth devices (names and IDs)\n" +
+		"•  battery readings and Headroom's recent log\n" +
+		"•  Claude usage numbers, if reading usage is on\n\n" +
+		"No passwords or login tokens. Bluetooth addresses are shortened.\n\n" +
+		"It's saved next to Headroom, copied to the clipboard and opened in Notepad, " +
+		"so you can read it before you share it with anyone."
+	if r, _, _ := pMessageBoxW.Call(hwnd, uintptr(unsafe.Pointer(u16(msg))),
+		uintptr(unsafe.Pointer(u16("Create troubleshooting report"))), 0x1|0x40); r != 1 { // OK/Cancel, info icon
+		return
+	}
 	if cfg.ClaudeFetch {
 		forceShapeLog.Store(true)
 		kickClaudeFetch()
@@ -207,8 +219,10 @@ func createReport() {
 	}()
 }
 
+var macRe = regexp.MustCompile(`mac=([0-9A-Fa-f]{8})([0-9A-Fa-f]{4})`)
+
 func finishReport() {
-	text := buildReport()
+	text := macRe.ReplaceAllString(buildReport(), "mac=…$2") // keep only the last 4
 	exe, _ := os.Executable()
 	path := filepath.Join(filepath.Dir(exe), "headroom-report.txt")
 	if err := os.WriteFile(path, []byte(text), 0o644); err != nil {

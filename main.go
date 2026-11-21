@@ -445,7 +445,7 @@ func showMenu() {
 	}
 	add(fl, idStartup, "Start with Windows")
 	add(MF_STRING, idSettings, "Settings…")
-	add(MF_STRING, idReport, "Report my headset…")
+	add(MF_STRING, idReport, "Create troubleshooting report…")
 	add(MF_SEPARATOR, 0, "")
 	add(MF_STRING, idExit, "Exit")
 
