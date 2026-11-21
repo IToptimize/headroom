@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync/atomic"
 	"syscall"
 	"time"
 	"unsafe"
@@ -152,6 +153,7 @@ func fetchClaudeUsage() time.Duration {
 		setFetchStatus(err.Error())
 		return 15 * time.Minute
 	}
+	refreshClaudePlan(tok)
 	status, body, err := httpsGet("api.anthropic.com", "/api/oauth/usage",
 		"Authorization: Bearer "+tok+"\r\nanthropic-beta: oauth-2025-04-20\r\nContent-Type: application/json\r\n")
 	tok = ""
@@ -181,7 +183,7 @@ func fetchClaudeUsage() time.Duration {
 		setFetchStatus("Unexpected answer format")
 		return 15 * time.Minute
 	}
-	u := claudeUsage{Updated: time.Now().Unix(), Plan: claudePlan}
+	u := claudeUsage{Updated: time.Now().Unix(), Plan: currentPlan()}
 	if old, ok := readClaudeUsage(); ok {
 		u.ContextUsed = old.ContextUsed
 	}
@@ -208,6 +210,15 @@ func fetchClaudeUsage() time.Duration {
 			continue
 		}
 		u.Extra = append(u.Extra, claudeExtra{Name: limitName(name), Used: *w.Utilization, Ends: parseResets(w.ResetsAt)})
+	}
+	// a separate Fable weekly limit only exists on Max/Ultra, so the plan
+	// can't be Pro any more even if the login file still says so
+	if strings.EqualFold(u.Plan, "pro") {
+		for _, e := range u.Extra {
+			if strings.EqualFold(e.Name, "fable") {
+				u.Plan = "max"
+			}
+		}
 	}
 	u.HasLimits = u.HasSession || u.HasWeek
 	if !u.HasLimits {
@@ -256,4 +267,83 @@ func limitName(k string) string {
 		}
 	}
 	return strings.Join(parts, " ")
+}
+
+// Plan detection. The login file's subscriptionType is only rewritten when
+// Claude Code logs in again, so after an upgrade it can say "pro" for hours.
+// The account profile (the same unofficial API family as the usage endpoint)
+// knows right away; we ask it at most every 30 minutes and fall back to the
+// login file when it doesn't answer or the format is unknown.
+var (
+	profilePlan    string
+	profileChecked time.Time
+	forcePlanCheck atomic.Bool // "Refresh now" checks the plan too
+)
+
+func currentPlan() string {
+	if profilePlan != "" {
+		return profilePlan
+	}
+	return claudePlan
+}
+
+func refreshClaudePlan(tok string) {
+	if time.Since(profileChecked) < 30*time.Minute && !forcePlanCheck.Swap(false) {
+		return
+	}
+	profileChecked = time.Now()
+	status, body, err := httpsGet("api.anthropic.com", "/api/oauth/profile",
+		"Authorization: Bearer "+tok+"\r\nanthropic-beta: oauth-2025-04-20\r\nContent-Type: application/json\r\n")
+	if err != nil || status != 200 {
+		dbg("claude profile: status %d err %v", status, err)
+		return
+	}
+	if p := planFromProfile(body); p != "" {
+		profilePlan = p
+		dbg("claude profile: plan %s", p)
+	}
+}
+
+// planFromProfile reads the plan from the profile answer without relying on
+// one exact shape: rate_limit_tier ("default_claude_max_20x"), then
+// organization_type ("claude_max"), then has_claude_max / has_claude_pro.
+func planFromProfile(body []byte) string {
+	var r struct {
+		Account struct {
+			HasMax *bool `json:"has_claude_max"`
+			HasPro *bool `json:"has_claude_pro"`
+		} `json:"account"`
+		Org struct {
+			Type string `json:"organization_type"`
+			Tier string `json:"rate_limit_tier"`
+		} `json:"organization"`
+	}
+	if json.Unmarshal(body, &r) != nil {
+		return ""
+	}
+	for _, f := range []string{strings.ToLower(r.Org.Tier), strings.ToLower(r.Org.Type)} {
+		switch {
+		case strings.Contains(f, "ultra"):
+			return "ultra"
+		case strings.Contains(f, "max_20x"):
+			return "max 20x"
+		case strings.Contains(f, "max_5x"):
+			return "max 5x"
+		case strings.Contains(f, "max"):
+			return "max"
+		case strings.Contains(f, "team"):
+			return "team"
+		case strings.Contains(f, "enterprise"):
+			return "enterprise"
+		case strings.Contains(f, "pro"):
+			return "pro"
+		}
+	}
+	switch {
+	case r.Account.HasMax != nil && *r.Account.HasMax:
+		return "max"
+	case r.Account.HasPro != nil && *r.Account.HasPro:
+		return "pro"
+	}
+	return ""
 }

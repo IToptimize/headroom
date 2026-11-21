@@ -399,6 +399,10 @@ func renderFlyout(vs []View, s float64) *canvas {
 				switch {
 				case p.Tint > 0 && p.Level == 0:
 					c.ring(cx, py, L.partR*s, 3.5*s, 1, colRed) // used up
+				case p.Tint > 0 && cfg.ClaudeLook == 1: // Claude look: ring = used
+					if used := 100 - p.Level; used > 0 {
+						c.ring(cx, py, L.partR*s, 3.5*s, math.Max(0.04, float64(used)/100), pc)
+					}
 				case p.Level >= 0:
 					c.ring(cx, py, L.partR*s, 3.5*s, math.Max(0.04, float64(p.Level)/100), pc)
 				}
@@ -406,6 +410,13 @@ func renderFlyout(vs []View, s float64) *canvas {
 				val, vcol := "–", th.muted
 				if p.Level >= 0 {
 					val, vcol = fmt.Sprintf("%d%%", p.Level), th.fg
+				}
+				if p.Tint > 0 && p.Level >= 0 { // Claude limits: say which way it counts
+					if cfg.ClaudeLook == 1 {
+						val = fmt.Sprintf("%d%% used", 100-p.Level)
+					} else {
+						val = fmt.Sprintf("%d%% left", p.Level)
+					}
 				}
 				vy := py - 9*s
 				if p.Sub != "" {

@@ -266,6 +266,7 @@ func showClaudeMenu() {
 	cmd, _, _ := pTrackPopupMenu.Call(m, TPM_RIGHTBUTTON|TPM_RETURNCMD|TPM_NONOTIFY, uintptr(pt.X), uintptr(pt.Y), 0, hwnd, 0)
 	switch cmd {
 	case idCRefresh:
+		forcePlanCheck.Store(true)
 		kickClaudeFetch()
 	case idCSet:
 		showSettings(1)

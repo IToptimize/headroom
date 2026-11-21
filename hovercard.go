@@ -34,6 +34,12 @@ func planName(p string) string {
 		return "Pro"
 	case "max":
 		return "Max"
+	case "max 5x", "max_5x":
+		return "Max 5x"
+	case "max 20x", "max_20x":
+		return "Max 20x"
+	case "ultra":
+		return "Ultra"
 	case "team":
 		return "Team"
 	case "enterprise":
@@ -95,12 +101,17 @@ func renderHoverCard(s float64) *canvas {
 		if used >= 99.5 {
 			pcol = colRed
 		}
-		c.text(fmt.Sprintf("%.0f%% used", used), rx, y, int(12*s), 600, pcol, alignRight)
+		// same way of counting as the tray icon and panel (Look setting)
+		label, fill := fmt.Sprintf("%.0f%% used", used), used
+		if cfg.ClaudeLook == 0 {
+			label, fill = fmt.Sprintf("%.0f%% left", 100-used), 100-used
+		}
+		c.text(label, rx, y, int(12*s), 600, pcol, alignRight)
 		by := y + 22*s
 		bh := 6 * s
 		c.fillRoundRect(lx, by, rx-lx, bh, bh/2, th.track)
-		if used > 0 {
-			c.fillRoundRect(lx, by, math.Max(bh, (rx-lx)*used/100), bh, bh/2, col)
+		if fill > 0 {
+			c.fillRoundRect(lx, by, math.Max(bh, (rx-lx)*fill/100), bh, bh/2, col)
 		}
 		sub, sc := "", th.muted
 		switch {

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.3 beta
+- Claude panel and hover card now count the same way as the tray icon and say so ("89% left" / "11% used", following the Look setting). Before, the panel showed % left and the card % used, which looked like different numbers.
+- The plan (Pro/Max/Ultra) is detected from the account, so an upgrade shows without logging out and in. "Refresh now" checks it immediately.
+
 ## 1.4.2 beta
 - Headroom and Claude are now fully separate: the headset panel only shows headsets, and clicking the orange icon opens its own Claude panel ("Show in the headset panel" removed).
 
