@@ -12,6 +12,7 @@ Click it for the details:
 
 ### New: Claude Code usage
 An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt (**Settings → Copy setup**).
+**1.5.2:** the inner ring stays on weekly unless Fable is ahead and getting tight.
 **1.5.1:** each Claude limit has its own calm colour (violet / blue / teal) with shared warning colours.
 **1.5:** Fable's weekly limit shows in the panel, hover card and (optionally) the tray's inner ring.
 **1.4.7:** crashes are now captured and included in the troubleshooting report.

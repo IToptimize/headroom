@@ -114,7 +114,11 @@ func drawClaudeIcon(v View, sz int, light bool) *canvas {
 	innerKind := limWeek
 	switch {
 	case model < 0:
-	case cfg.ClaudeInner == 1, cfg.ClaudeInner == 2 && (week < 0 || model < week):
+	case cfg.ClaudeInner == 1:
+		levels[1], innerKind = model, limModel
+	case cfg.ClaudeInner == 2 && (week < 0 || (model < week && model <= 40)):
+		// "Most used": weekly (blue) day to day; the model limit takes over
+		// only when it's ahead and getting tight (60 %+ used = yellow)
 		levels[1], innerKind = model, limModel
 	}
 	draw := func(r, t float64, left int, kind int) {

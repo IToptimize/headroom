@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.5.2 beta
+- Inner ring "Most used" is now "Auto" (still the default): it shows the weekly limit (blue) and only switches to the model limit (e.g. Fable) when that one is ahead and 60 %+ used.
+
 ## 1.5.1 beta
 - "Dusk" colours for Claude limits: 5-hour violet, weekly blue, Fable (model limits) teal while there's room; all switch to the same yellow at 60 %, orange at 80 % and red at 92 %. No more muddy in-between colours.
 
