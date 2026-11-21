@@ -222,11 +222,6 @@ func renderSettings(s float64) *canvas {
 		row("Always show in taskbar", func(y float64) {
 			toggleSwitch(c, right, y+2*s, trayPinned(), s, th, func() { toggleTrayPin(); applySettings() })
 		})
-		y += 6 * s
-		section("HELP")
-		row("Headset not working?", func(y float64) {
-			segmented(c, right, y, []string{"Create report"}, 0, s, th, func(int) { hideSettings(); createReport() })
-		})
 	} else {
 		section("TRAY & PANEL")
 		row("Orange icon in the tray", func(y float64) {
@@ -289,6 +284,19 @@ func renderSettings(s float64) *canvas {
 	}
 
 	c.text(appName+" "+appVersion, ox+20*s, oy+H-28*s, int(11*s), 400, th.muted, alignLeft)
+
+	// Help sits apart from the settings, bottom right: a quiet outlined button
+	// with a short question next to it, on both tabs.
+	{
+		label := "Troubleshooting report"
+		tw := float64(renderText(label, int(12*s), 600, 0).w)
+		bw, bh := tw+24*s, 26*s
+		bx, by := ox+W-20*s-bw, oy+H-36*s
+		c.strokeRoundRect(bx, by, bw, bh, bh/2, math.Max(1, s), th.border)
+		c.text(label, bx+12*s, by+5*s, int(12*s), 600, th.fg, alignLeft)
+		c.text("Something not working?", bx-10*s, by+6*s, int(11*s), 400, th.muted, alignRight)
+		setHits = append(setHits, hit{bx, by, bx + bw, by + bh, func() { hideSettings(); createReport() }})
+	}
 	return c
 }
 

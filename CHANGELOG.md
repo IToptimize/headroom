@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.4.6 beta
+- The troubleshooting report button moved out of the settings to the bottom right of the Settings window ("Something not working?"), on both tabs.
+
 ## 1.4.5 beta
 - "Report my headset…" is now "Create troubleshooting report…", asks first with a short list of what's included, and shortens Bluetooth addresses in the report.
 
