@@ -12,6 +12,7 @@ Click it for the details:
 
 ### New: Claude Code usage
 An optional **orange double ring** in the tray shows how much of your Claude session (outer) and weekly limit (inner) is left, with reset times in the panel, plus two matching rings under the Claude Code prompt (**Settings → Copy setup**).
+**1.6.1:** one estimate when both earbuds match, one per earbud when they differ.
 **1.6:** the device in use comes first; hovering the headset icon shows the panel.
 **1.5.3:** Headroom shows up in Windows search (Start menu shortcut).
 **1.5.2:** the inner ring stays on weekly unless Fable is ahead and getting tight.

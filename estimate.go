@@ -79,6 +79,7 @@ type sample struct {
 type View struct {
 	Detail     string // per-part levels, e.g. AirPods L/R/case
 	Parts      []Part
+	HeadSub    string // estimate shown next to the device name (parts at the same level)
 	ID         string
 	Kind       string
 	Tested     bool
@@ -363,15 +364,39 @@ func (t *tracker) annotateParts(v *View) {
 		}
 	}
 	now := v.Updated
+	// Same level on every draining part (e.g. both earbuds at 65 %): one
+	// estimate next to the device name. Different levels: each part gets its
+	// own, scaled from the lowest one (same drain per percent).
+	same, drains := true, 0
+	for _, p := range parts {
+		if p.Label == "Case" || strings.HasPrefix(p.Label, "Spare") || p.Level < 0 || p.Charging {
+			continue
+		}
+		drains++
+		if main >= 0 && p.Level != parts[main].Level {
+			same = false
+		}
+	}
+	lt := leftText(*v)
+	if lt != "" && drains > 1 && same && !v.Charging {
+		v.HeadSub = lt
+		lt = ""
+	}
 	for i := range parts {
 		p := &parts[i]
 		if i == main {
-			if lt := leftText(*v); lt != "" {
+			if lt != "" {
 				p.Sub = strings.TrimSuffix(lt, " (rated)")
 				if v.LeftRated {
 					p.Sub += " (rated)"
 				}
 			}
+			continue
+		}
+		if lt != "" && !v.Charging && !p.Charging && p.Level > 0 && main >= 0 && parts[main].Level > 0 &&
+			p.Label != "Case" && !strings.HasPrefix(p.Label, "Spare") {
+			d := time.Duration(float64(v.Left) * float64(p.Level) / float64(parts[main].Level))
+			p.Sub = "≈ " + fmtDur(d) + " left"
 			continue
 		}
 		if !p.Charging || p.Level < 0 || p.Level >= 100 || i == main {

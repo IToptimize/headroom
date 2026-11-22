@@ -388,6 +388,9 @@ func renderFlyout(vs []View, s float64) *canvas {
 			x := ox + 24*s
 			nw := c.text(shortName(v.Name), x, top+(L.nameY-1)*s, int(14*s), 600, th.fg, alignLeft)
 			c.text(tag, x+float64(nw)+6*s, top+(L.nameY+1)*s, int(11*s), 400, th.muted, alignLeft)
+			if v.HeadSub != "" {
+				c.text(v.HeadSub, ox+W-24*s, top+(L.nameY+1)*s, int(11*s), 400, th.muted, alignRight)
+			}
 			for j, p := range v.Parts {
 				py := top + (L.head+float64(j)*L.part+L.part/2)*s
 				pc := partColor(p)

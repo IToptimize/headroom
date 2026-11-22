@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.6.1 beta
+- Earbuds at the same level: one time estimate next to the device name. At different levels: each earbud gets its own estimate.
+
 ## 1.6 beta
 - The device you're using comes first: connected devices are listed (panel, tooltip) newest-connected first, and the tray ring follows the one you most recently started using (unless you pinned one).
 - Hovering the headset icon for 0.5 s shows the same panel as clicking it. Switch off under Settings › General › "Show panel when hovering".
