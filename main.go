@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"sync"
 	"syscall"
 	"time"
@@ -38,18 +39,18 @@ const (
 )
 
 var (
-	hwnd            uintptr
-	taskbarCreated  uintptr
-	curIcon         uintptr
-	mu              sync.Mutex
-	latest          []Reading
-	havePoll        bool
-	trackers        = map[string]*tracker{}
-	views           []View
-	notified        = map[string]map[int]bool{}
-	pollNow         = make(chan struct{}, 1)
-	debug           bool
-	lastClaudeClick time.Time
+	hwnd                              uintptr
+	taskbarCreated                    uintptr
+	curIcon                           uintptr
+	mu                                sync.Mutex
+	latest                            []Reading
+	havePoll                          bool
+	trackers                          = map[string]*tracker{}
+	views                             []View
+	notified                          = map[string]map[int]bool{}
+	pollNow                           = make(chan struct{}, 1)
+	debug                             bool
+	lastClaudeClick, lastHeadsetClick time.Time
 )
 
 func dbg(f string, a ...any) {
@@ -234,7 +235,7 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 	case msg == wmTray && (lp>>16)&0xFFFF == 2: // orange Claude icon (version 4 events)
 		switch lp & 0xFFFF {
 		case 0x406: // NIN_POPUPOPEN: mouse is over the icon
-			hoverEnter()
+			hoverEnter(1)
 		case 0x407: // NIN_POPUPCLOSE
 			hoverLeave()
 		case WM_LBUTTONUP, 0x400: // click (NIN_SELECT may follow WM_LBUTTONUP)
@@ -249,12 +250,21 @@ func wndProc(h, msg, wp, lp uintptr) uintptr {
 			showClaudeMenu()
 		}
 		return 0
-	case msg == wmTray:
+	case msg == wmTray: // headset icon (version 4 events)
 		switch lp & 0xFFFF {
-		case WM_LBUTTONUP:
-			toggleFlyout(0)
-			requestPoll()
-		case WM_RBUTTONUP, WM_CONTEXTMENU:
+		case 0x406:
+			hoverEnter(0)
+		case 0x407:
+			hoverLeave()
+		case WM_LBUTTONUP, 0x400:
+			hoverLeave()
+			if time.Since(lastHeadsetClick) > 400*time.Millisecond {
+				lastHeadsetClick = time.Now()
+				toggleFlyout(0)
+				requestPoll()
+			}
+		case WM_CONTEXTMENU:
+			hoverLeave()
 			showMenu()
 		}
 		return 0
@@ -325,10 +335,41 @@ func iconAndTip() string {
 func addIcon() {
 	n := baseNID()
 	n.UFlags = NIF_MESSAGE | NIF_ICON | NIF_TIP
+	if !cfg.Hover {
+		n.UFlags |= NIF_SHOWTIP // plain tooltip instead of the hover panel
+	}
 	n.UCallbackMessage = wmTray
 	copyU16(n.SzTip[:], iconAndTip())
 	n.HIcon = curIcon
 	pShellNotifyIconW.Call(NIM_ADD, ptr(&n))
+	// version 4: hover in/out events, like the orange icon
+	n.UVersion = 4
+	pShellNotifyIconW.Call(NIM_SETVERSION, ptr(&n))
+}
+
+// connectedSince: when each device last came online, so the one you've
+// just started using is listed (and shown in the tray) first.
+var connectedSince = map[string]time.Time{}
+
+func sortInUse(vs []View, now time.Time) []View {
+	for _, v := range vs {
+		if !v.OK {
+			delete(connectedSince, v.ID)
+		} else if _, ok := connectedSince[v.ID]; !ok {
+			connectedSince[v.ID] = now
+		}
+	}
+	sort.SliceStable(vs, func(i, j int) bool {
+		a, b := vs[i], vs[j]
+		if a.OK != b.OK {
+			return a.OK
+		}
+		if a.OK {
+			return connectedSince[a.ID].After(connectedSince[b.ID])
+		}
+		return false
+	})
+	return vs
 }
 
 func onUpdate() {
@@ -347,7 +388,7 @@ func onUpdate() {
 		dbg("view %+v", v)
 		vs = append(vs, v)
 	}
-	views = vs
+	views = sortInUse(vs, now)
 	render()
 	for _, v := range views {
 		checkThresholds(v)
@@ -358,11 +399,15 @@ func onUpdate() {
 func render() {
 	n := baseNID()
 	n.UFlags = NIF_ICON | NIF_TIP
+	if !cfg.Hover {
+		n.UFlags |= NIF_SHOWTIP
+	}
 	copyU16(n.SzTip[:], iconAndTip())
 	n.HIcon = curIcon
 	pShellNotifyIconW.Call(NIM_MODIFY, ptr(&n))
 	renderClaudeIcon()
 	refreshFlyout()
+	refreshHover()
 }
 
 // checkThresholds pops a small silent notice when a device crosses 50/10/5 %.

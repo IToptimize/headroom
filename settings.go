@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-const appVersion = "1.5.3 beta"
+const appVersion = "1.6 beta"
 
 // Settings persisted in HKCU\Software\Headroom.
 type config struct {
@@ -23,6 +23,7 @@ type config struct {
 	ClaudeEvery  int          // minutes between usage fetches (2, 3 or 5)
 	ClaudeLook   int          // 0 Headroom (ring = left), 1 Claude (ring = used, Claude colours)
 	ClaudeInner  int          // inner tray ring: 0 weekly (all models), 1 model limit (Fable), 2 most used
+	Hover        bool         // panel preview when hovering the headset icon
 	ClaudeHover  bool         // Claude-style card when hovering the orange icon
 	ClaudeAlerts bool         // pop-ups when the 5-hour limit runs out / resets
 }
@@ -61,6 +62,7 @@ func loadConfig() {
 		ClaudeEvery:  regInt("ClaudeEvery", 3),
 		ClaudeLook:   regInt("ClaudeLook", 0),
 		ClaudeInner:  regInt("ClaudeInner", 2),
+		Hover:        regInt("Hover", 1) == 1,
 		ClaudeHover:  regInt("ClaudeHover", 1) == 1,
 		ClaudeAlerts: regInt("ClaudeAlerts", 1) == 1,
 	}
@@ -100,6 +102,7 @@ func saveConfig() {
 	regSet("cfg|ClaudeEvery", strconv.Itoa(cfg.ClaudeEvery))
 	regSet("cfg|ClaudeLook", strconv.Itoa(cfg.ClaudeLook))
 	regSet("cfg|ClaudeInner", strconv.Itoa(cfg.ClaudeInner))
+	regSet("cfg|Hover", b(cfg.Hover))
 	regSet("cfg|ClaudeHover", b(cfg.ClaudeHover))
 	regSet("cfg|ClaudeAlerts", b(cfg.ClaudeAlerts))
 	for _, l := range popupLevels {

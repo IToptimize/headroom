@@ -142,12 +142,24 @@ const (
 	hoverDelay = 500
 )
 
-var hoverPending bool
+var (
+	hoverPending bool
+	hoverMode    int // 0 = headset icon (shows the panel), 1 = orange Claude icon
+)
 
-func hoverEnter() {
-	if !cfg.ClaudeHover || hoverVisible {
+func hoverEnabled(mode int) bool {
+	if mode == 1 {
+		return cfg.ClaudeHover
+	}
+	return cfg.Hover
+}
+
+func hoverEnter(mode int) {
+	if !hoverEnabled(mode) || (hoverVisible && hoverMode == mode) {
 		return
 	}
+	hideHoverCard()
+	hoverMode = mode
 	hoverPending = true
 	pSetTimer.Call(hwnd, tmHover, hoverDelay, 0)
 }
@@ -166,7 +178,7 @@ func hoverTimer() {
 	hoverPending = false
 	var pt POINT
 	pGetCursorPos.Call(ptr(&pt))
-	if r, ok := claudeIconRect(); ok {
+	if r, ok := trayIconRect(uint32(1 + hoverMode)); ok {
 		// still resting on the icon? (a few px of slack)
 		if pt.X < r.Left-4 || pt.X > r.Right+4 || pt.Y < r.Top-4 || pt.Y > r.Bottom+4 {
 			return
@@ -186,13 +198,13 @@ type notifyIconIdentifier struct {
 
 var pShellNotifyIconGetRect = shell32.NewProc("Shell_NotifyIconGetRect")
 
-// claudeIconRect: where the orange icon sits on screen (taskbar or the
-// hidden-icons overflow), in physical pixels.
-func claudeIconRect() (RECT, bool) {
+// trayIconRect: where one of our icons (uid 1 headset, 2 Claude) sits on
+// screen (taskbar or the hidden-icons overflow), in physical pixels.
+func trayIconRect(uid uint32) (RECT, bool) {
 	if pShellNotifyIconGetRect.Find() != nil {
 		return RECT{}, false
 	}
-	id := notifyIconIdentifier{HWnd: hwnd, UID: 2}
+	id := notifyIconIdentifier{HWnd: hwnd, UID: uid}
 	id.CbSize = uint32(unsafe.Sizeof(id))
 	var r RECT
 	hr, _, _ := pShellNotifyIconGetRect.Call(ptr(&id), ptr(&r))
@@ -205,15 +217,21 @@ func claudeIconRect() (RECT, bool) {
 // showHoverCard places the card just above the icon (or beside / below it
 // when the taskbar is on another edge), centred on it.
 func showHoverCard(icon RECT) {
-	if !cfg.ClaudeHover || flyVisible || setVisible {
+	if !hoverEnabled(hoverMode) || flyVisible || setVisible {
 		return
 	}
-	if _, ok := readClaudeUsage(); !ok {
+	if _, ok := readClaudeUsage(); hoverMode == 1 && !ok {
 		return
 	}
+	hoverIcon = icon
 	cx, cy := (icon.Left+icon.Right)/2, (icon.Top+icon.Bottom)/2
 	work, s := monitorAt(POINT{cx, cy}, false)
-	c := renderHoverCard(s)
+	var c *canvas
+	if hoverMode == 1 {
+		c = renderHoverCard(s)
+	} else {
+		c = renderFlyout(views, s) // same overview as clicking the icon
+	}
 	pad := int(shadowPad * s)
 	gap := int(8 * s)
 	w, h := c.w-2*pad, c.h-2*pad
@@ -241,5 +259,14 @@ func hideHoverCard() {
 	if hoverVisible {
 		pShowWindow.Call(hoverHwnd, SW_HIDE)
 		hoverVisible = false
+	}
+}
+
+var hoverIcon RECT
+
+// refreshHover redraws an open hover panel when new readings arrive.
+func refreshHover() {
+	if hoverVisible {
+		showHoverCard(hoverIcon)
 	}
 }

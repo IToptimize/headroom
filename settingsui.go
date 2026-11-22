@@ -222,6 +222,10 @@ func renderSettings(s float64) *canvas {
 		row("Always show in taskbar", func(y float64) {
 			toggleSwitch(c, right, y+2*s, trayPinned(), s, th, func() { toggleTrayPin(); applySettings() })
 		})
+		row("Show panel when hovering", func(y float64) {
+			toggleSwitch(c, right, y+2*s, cfg.Hover, s, th, func() { cfg.Hover = !cfg.Hover; changed() })
+		})
+
 	} else {
 		section("TRAY & PANEL")
 		row("Orange icon in the tray", func(y float64) {
